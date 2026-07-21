@@ -93,7 +93,7 @@ export default function Dashboard() {
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-700">Attivita recente</h2>
-          <Link to="/shipments" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+          <Link to="/shipments" className="text-sm text-brand-primary hover:text-brand-primary-hover font-medium">
             Vedi tutte →
           </Link>
         </div>

@@ -32,9 +32,9 @@ function Icon({ name }: { name: string }) {
 export default function Sidebar() {
   return (
     <aside className="w-64 bg-slate-900 text-white flex flex-col">
-      <div className="p-6 border-b border-slate-700">
-        <h1 className="text-lg font-bold tracking-tight">Vetronaviglio</h1>
-        <p className="text-xs text-slate-400 mt-0.5">Tracking Dashboard</p>
+      <div className="px-6 py-5 border-b border-white/10">
+        <img src="/logo.svg" alt="Vetronaviglio" className="h-7 w-auto brightness-0 invert" />
+        <p className="text-xs text-slate-400 mt-1">Tracking Dashboard</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
@@ -43,11 +43,11 @@ export default function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.to === '/'}
-            className={({ isActive }) =>
+              className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-slate-700 text-white'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-brand-primary-dark/80 text-white'
+                  : 'text-slate-300 hover:bg-white/10 hover:text-white'
               }`
             }
           >

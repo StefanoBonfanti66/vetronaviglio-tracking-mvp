@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #0977b4;
+  --color-brand-primary-hover: #076099;
+  --color-brand-primary-dark: #162a37;
+  --color-brand-accent: #35bfae;
+  --color-brand-danger: #dc2626;
+  --color-brand-muted: #64748b;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background-color: #f5f7fa;
+  color: #1e293b;
+}

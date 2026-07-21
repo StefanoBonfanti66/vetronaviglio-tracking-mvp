@@ -78,7 +78,7 @@ export default function ShipmentForm() {
               required
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
               placeholder="Es. 1234567890"
             />
           </div>
@@ -89,7 +89,7 @@ export default function ShipmentForm() {
               required
               value={carrierId}
               onChange={(e) => setCarrierId(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
             >
               <option value="">Seleziona corriere</option>
               {carriers.map((c) => (
@@ -104,7 +104,7 @@ export default function ShipmentForm() {
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
               placeholder="Nome cliente"
             />
           </div>
@@ -115,7 +115,7 @@ export default function ShipmentForm() {
               type="text"
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
               placeholder="N. ordine"
             />
           </div>
@@ -126,7 +126,7 @@ export default function ShipmentForm() {
               type="text"
               value={customerReference}
               onChange={(e) => setCustomerReference(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
               placeholder="Ref. cliente"
             />
           </div>
@@ -137,7 +137,7 @@ export default function ShipmentForm() {
               type="text"
               value={origin}
               onChange={(e) => setOrigin(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
               placeholder="Citta origine"
             />
           </div>
@@ -148,7 +148,7 @@ export default function ShipmentForm() {
               type="text"
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
               placeholder="Citta destinazione"
             />
           </div>
@@ -159,7 +159,7 @@ export default function ShipmentForm() {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
               placeholder="Note opzionali..."
             />
           </div>
@@ -169,7 +169,7 @@ export default function ShipmentForm() {
           <button
             type="submit"
             disabled={submitting}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="bg-brand-primary text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-brand-primary-hover transition-colors disabled:opacity-50"
           >
             {submitting ? 'Salvataggio...' : 'Salva spedizione'}
           </button>

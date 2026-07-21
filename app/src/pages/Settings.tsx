@@ -109,12 +109,12 @@ export default function Settings() {
                 placeholder="Numero di tracking di test"
                 value={testTrackingNumber}
                 onChange={(e) => setTestTrackingNumber(e.target.value)}
-                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
               />
               <button
                 onClick={handleTestFedEx}
                 disabled={fedexStatus === 'testing'}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 bg-brand-primary text-white text-sm font-medium rounded-lg hover:bg-brand-primary-hover disabled:opacity-50"
               >
                 {fedexStatus === 'testing' ? 'Test in corso...' : 'Testa connessione'}
               </button>
@@ -126,7 +126,7 @@ export default function Settings() {
                   ? 'bg-emerald-50 text-emerald-700' 
                   : fedexStatus === 'error'
                   ? 'bg-red-50 text-red-700'
-                  : 'bg-blue-50 text-blue-700'
+                  : 'bg-brand-primary/10 text-brand-primary'
               }`}>
                 {fedexMessage}
               </div>

@@ -111,7 +111,7 @@ export default function ShipmentEdit() {
               required
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
             />
           </div>
 
@@ -121,7 +121,7 @@ export default function ShipmentEdit() {
               required
               value={carrierId}
               onChange={(e) => setCarrierId(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
             >
               <option value="">Seleziona corriere</option>
               {carriers.map((c) => (
@@ -135,7 +135,7 @@ export default function ShipmentEdit() {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as ShipmentStatus)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
             >
               {Object.entries(STATUS_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
@@ -149,7 +149,7 @@ export default function ShipmentEdit() {
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
             />
           </div>
 
@@ -159,7 +159,7 @@ export default function ShipmentEdit() {
               type="text"
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
             />
           </div>
 
@@ -169,7 +169,7 @@ export default function ShipmentEdit() {
               type="text"
               value={customerReference}
               onChange={(e) => setCustomerReference(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
             />
           </div>
 
@@ -179,7 +179,7 @@ export default function ShipmentEdit() {
               type="text"
               value={origin}
               onChange={(e) => setOrigin(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
             />
           </div>
 
@@ -189,7 +189,7 @@ export default function ShipmentEdit() {
               type="text"
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
             />
           </div>
 
@@ -199,7 +199,7 @@ export default function ShipmentEdit() {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
             />
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function ShipmentEdit() {
           <button
             type="submit"
             disabled={submitting}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="bg-brand-primary text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-brand-primary-hover transition-colors disabled:opacity-50"
           >
             {submitting ? 'Salvataggio...' : 'Salva modifiche'}
           </button>

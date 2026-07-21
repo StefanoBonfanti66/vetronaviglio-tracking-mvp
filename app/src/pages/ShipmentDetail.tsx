@@ -8,7 +8,7 @@ function TimelineItem({ event, isLast }: { event: TrackingEvent; isLast: boolean
   return (
     <div className="flex gap-4">
       <div className="flex flex-col items-center">
-        <div className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow" />
+        <div className="w-3 h-3 rounded-full bg-brand-primary border-2 border-white shadow" />
         {!isLast && <div className="w-0.5 flex-1 bg-slate-200 mt-1" />}
       </div>
       <div className={`pb-6 ${isLast ? '' : ''}`}>
@@ -61,7 +61,7 @@ export default function ShipmentDetail() {
     return (
       <div className="bg-red-50 border border-red-200 rounded-xl p-6">
         <p className="text-red-700 font-medium">Errore: {error}</p>
-        <Link to="/shipments" className="text-sm text-blue-600 hover:underline mt-2 inline-block">
+        <Link to="/shipments" className="text-sm text-brand-primary hover:underline mt-2 inline-block">
           ← Torna alle spedizioni
         </Link>
       </div>
@@ -72,7 +72,7 @@ export default function ShipmentDetail() {
     return (
       <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
         <p className="text-slate-500">Spedizione non trovata</p>
-        <Link to="/shipments" className="text-sm text-blue-600 hover:underline mt-2 inline-block">
+        <Link to="/shipments" className="text-sm text-brand-primary hover:underline mt-2 inline-block">
           ← Torna alle spedizioni
         </Link>
       </div>
@@ -81,7 +81,7 @@ export default function ShipmentDetail() {
 
   return (
     <div>
-      <Link to="/shipments" className="text-sm text-blue-600 hover:text-blue-800 mb-4 inline-block">
+      <Link to="/shipments" className="text-sm text-brand-primary hover:text-brand-primary-hover mb-4 inline-block">
         ← Torna alle spedizioni
       </Link>
 

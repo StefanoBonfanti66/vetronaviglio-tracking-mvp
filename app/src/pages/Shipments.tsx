@@ -82,7 +82,7 @@ export default function Shipments() {
 
   function SortIcon({ field }: { field: SortField }) {
     if (sortField !== field) return <span className="text-slate-300 ml-1">↕</span>
-    return <span className="text-blue-600 ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>
+    return <span className="text-brand-primary ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>
   }
 
   function handleExport() {
@@ -153,7 +153,7 @@ export default function Shipments() {
           </button>
           <Link
             to="/shipments/new"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="bg-brand-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-primary-hover transition-colors"
           >
             + Nuova spedizione
           </Link>
@@ -167,12 +167,12 @@ export default function Shipments() {
           placeholder="Cerca per tracking, cliente, riferimento..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[200px] border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 min-w-[200px] border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as ShipmentStatus | '')}
-          className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
         >
           <option value="">Tutti gli stati</option>
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
@@ -182,7 +182,7 @@ export default function Shipments() {
         <select
           value={carrierFilter}
           onChange={(e) => setCarrierFilter(e.target.value)}
-          className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
         >
           <option value="">Tutti i corrieri</option>
           {carriers.map((c) => (
@@ -235,7 +235,7 @@ export default function Shipments() {
                   <td className="px-4 py-3">
                     <Link
                       to={`/shipments/${shipment.id}`}
-                      className="text-sm font-mono text-blue-600 hover:text-blue-800 hover:underline"
+                      className="text-sm font-mono text-brand-primary hover:text-brand-primary-hover hover:underline"
                     >
                       {shipment.tracking_number}
                     </Link>
@@ -316,7 +316,7 @@ export default function Shipments() {
               <button
                 onClick={handleImport}
                 disabled={importPreview.length === 0 || importing}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                className="bg-brand-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-primary-hover disabled:opacity-50"
               >
                 {importing ? 'Importazione...' : `Importa ${importPreview.length} spedizioni`}
               </button>
