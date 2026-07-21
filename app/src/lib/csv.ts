@@ -12,7 +12,28 @@ const CSV_HEADERS = [
   'notes',
 ]
 
+const COLUMN_ALIASES: Record<string, string> = {
+  'numero di monitoraggio': 'tracking_number',
+  'nome del contatto del destinatario': 'customer_name',
+  'società destinataria': 'customer_name',
+  'città del mittente': 'origin',
+  'città del destinatario': 'destination',
+  'riferimento': 'customer_reference',
+  'numero ordine d\'acquisto': 'order_number',
+  'stato': 'status',
+  'stato con dettagli': 'status',
+  'note': 'notes',
+}
+
+function detectDelimiter(text: string): string {
+  const firstLine = text.trim().split('\n')[0]
+  const commaCount = (firstLine.match(/,/g) || []).length
+  const tabCount = (firstLine.match(/\t/g) || []).length
+  return tabCount > commaCount ? '\t' : ','
+}
+
 export function parseCSV(text: string): string[][] {
+  const delimiter = detectDelimiter(text)
   const lines = text.trim().split('\n')
   return lines.map(line => {
     const result: string[] = []
@@ -21,7 +42,7 @@ export function parseCSV(text: string): string[][] {
     for (const char of line) {
       if (char === '"') {
         inQuotes = !inQuotes
-      } else if (char === ',' && !inQuotes) {
+      } else if (char === delimiter && !inQuotes) {
         result.push(current.trim())
         current = ''
       } else {
@@ -31,6 +52,11 @@ export function parseCSV(text: string): string[][] {
     result.push(current.trim())
     return result
   })
+}
+
+function normalizeHeader(header: string): string {
+  const normalized = header.toLowerCase().trim()
+  return COLUMN_ALIASES[normalized] ?? normalized
 }
 
 export function validateCSV(rows: string[][], carriers: Carrier[]): {
@@ -63,7 +89,7 @@ export function validateCSV(rows: string[][], carriers: Carrier[]): {
     return { valid, errors }
   }
 
-  const headers = rows[0].map(h => h.toLowerCase().trim())
+  const headers = rows[0].map(normalizeHeader)
   const trackingIdx = headers.indexOf('tracking_number')
   const carrierIdx = headers.indexOf('carrier_code')
 
