@@ -1,21 +1,29 @@
 import { useEffect, useState } from 'react'
-import { getShipments } from '../lib/shipments'
+import { Link } from 'react-router-dom'
+import { getShipments, getCarriers } from '../lib/shipments'
 import { STATUS_LABELS, STATUS_COLORS } from '../types/tracking'
-import type { Shipment, ShipmentStatus } from '../types/tracking'
+import type { Shipment, ShipmentStatus, Carrier } from '../types/tracking'
 
 export default function Shipments() {
   const [shipments, setShipments] = useState<Shipment[]>([])
+  const [carriers, setCarriers] = useState<Carrier[]>([])
   const [count, setCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<ShipmentStatus | ''>('')
+  const [carrierFilter, setCarrierFilter] = useState('')
+
+  useEffect(() => {
+    getCarriers().then(setCarriers).catch(() => {})
+  }, [])
 
   useEffect(() => {
     setLoading(true)
     getShipments({
       search: search || undefined,
       status: (statusFilter as ShipmentStatus) || undefined,
+      carrier_id: carrierFilter || undefined,
       limit: 50,
     })
       .then(({ data, count }) => {
@@ -24,25 +32,28 @@ export default function Shipments() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [search, statusFilter])
+  }, [search, statusFilter, carrierFilter])
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Spedizioni</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+        <Link
+          to="/shipments/new"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
           + Nuova spedizione
-        </button>
+        </Link>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-wrap gap-4 mb-6">
         <input
           type="text"
           placeholder="Cerca per tracking, cliente, riferimento..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 min-w-[200px] border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <select
           value={statusFilter}
@@ -52,6 +63,16 @@ export default function Shipments() {
           <option value="">Tutti gli stati</option>
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
             <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        <select
+          value={carrierFilter}
+          onChange={(e) => setCarrierFilter(e.target.value)}
+          className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">Tutti i corrieri</option>
+          {carriers.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
       </div>
@@ -85,7 +106,14 @@ export default function Shipments() {
             <tbody>
               {shipments.map((shipment) => (
                 <tr key={shipment.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3 text-sm font-mono text-slate-700">{shipment.tracking_number}</td>
+                  <td className="px-4 py-3">
+                    <Link
+                      to={`/shipments/${shipment.id}`}
+                      className="text-sm font-mono text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      {shipment.tracking_number}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-sm text-slate-600">{shipment.carrier?.name ?? '—'}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[shipment.status]}`}>

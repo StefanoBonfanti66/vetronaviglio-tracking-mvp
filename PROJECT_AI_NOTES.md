@@ -4,8 +4,8 @@
 
 ## Obiettivo
 - Scopo: MVP dashboard per tracking spedizioni multi-corriere (FedEx API + gestione manuale)
-- Stato attuale: **M2 completato — Fase sviluppo in corso**
-- Risultato atteso della sessione: Commit M2, proseguire con M3
+- Stato attuale: **M3 completato — Fase sviluppo in corso**
+- Risultato atteso della sessione: Commit M3, proseguire con M4
 
 ## Stack e vincoli
 - Frontend: React 19 + TypeScript + Vite + TailwindCSS
@@ -52,6 +52,18 @@
 - `.env.example` aggiornato con FedEx credentials (sandbox)
 - Status mapping: FedEx → shipment status interno
 
+### M3 — Dashboard frontend avanzata (2026-07-21)
+- Grafici statistiche: `app/src/components/charts/StatusPieChart.tsx` (pie chart distribuzione stati)
+- Grafici statistiche: `app/src/components/charts/CarrierBarChart.tsx` (bar chart spedizioni per corriere)
+- Dashboard potenziata: stat cards con icone, grafici, lista attivita recente con link
+- Pagina dettaglio spedizione: `app/src/pages/ShipmentDetail.tsx` (info dettagliate + timeline eventi)
+- Form nuova spedizione: `app/src/pages/ShipmentForm.tsx` (form completo con validazione)
+- Shipments page aggiornata: filtri per corriere, link a dettaglio, link a nuovo
+- Route aggiunte: `/shipments/new`, `/shipments/:id`
+- Dipendenza: `recharts` aggiunta per grafici
+- Typecheck: `npx tsc --noEmit` ✅
+- Build: `npm run build` ✅ (683 modules, 874KB JS / 251KB gzip)
+
 ## Struttura fatturazione
 
 | # | Fattura | Tipo | Milestone | Importo | Emissione prevista | Scadenza |
@@ -89,10 +101,13 @@
 - `app/src/pages/Dashboard.tsx`
 - `app/src/pages/Shipments.tsx`
 - `app/src/pages/Settings.tsx`
+- `app/src/pages/ShipmentDetail.tsx`
+- `app/src/pages/ShipmentForm.tsx`
+- `app/src/components/charts/StatusPieChart.tsx`
+- `app/src/components/charts/CarrierBarChart.tsx`
 - `app/src/App.tsx`
 - `.env.example`
 
 ## Prossimo step suggerito
-- Commit M2 su branch `develop`
-- M3: Dashboard frontend avanzata
+- Commit M3 su branch `develop`
 - M4: Gestione manuale/CSV spedizioni
