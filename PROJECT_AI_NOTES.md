@@ -4,15 +4,15 @@
 
 ## Obiettivo
 - Scopo: MVP dashboard per tracking spedizioni multi-corriere (FedEx API + gestione manuale)
-- Stato attuale: **M4 completato — Fase sviluppo in corso**
-- Risultato atteso della sessione: Commit M4, proseguire con M5
+- Stato attuale: **M5 completato — Pronto per go-live**
+- Risultato atteso: Deploy produzione su Vercel
 
 ## Stack e vincoli
-- Frontend: React 19 + TypeScript + Vite + TailwindCSS
+- Frontend: React 19 + TypeScript + Vite + TailwindCSS v4
 - Backend: Supabase (Auth, Postgres RLS, Storage)
 - Database: Postgres con RLS multi-tenancy
 - Infra: Vercel + GitHub Actions
-- Vincoli tecnici: Integrazione FedEx Track API
+- Vincoli tecnici: Integrazione FedEx Track API, Vitest per testing
 - Vincoli di piano/free tier: Da verificare
 
 ## Decisioni prese
@@ -74,6 +74,19 @@
 - Typecheck: `npx tsc --noEmit` ✅
 - Build: `npm run build` ✅ (685 modules, 889KB JS / 254KB gzip)
 
+### M5 — Testing + go-live (2026-07-21)
+- Setup Vitest + jsdom + @testing-library/react
+- `app/src/lib/__tests__/csv.test.ts` — 16 test: parsing CSV, validazione, export
+- `app/src/lib/__tests__/fedex.test.ts` — 10 test: status mapping FedEx
+- `app/src/types/__tests__/tracking.test.ts` — 4 test: labels/colors/spedizioni
+- **31/31 test Vitest passati** ✅
+- `npm run build` — ✅ (685 modules, 889KB JS, 17.6KB CSS, ~3.5s)
+- `npx tsc --noEmit` — ✅ typecheck pulito
+- README.md aggiornato con descrizione progetto, milestones, setup
+- AGENTS.md aggiornato con Current Focus M5
+- index.html titolo: "Vetronaviglio — Tracking Dashboard"
+- Appunti: Deploy Vercel in attesa di token valido
+
 ## Struttura fatturazione
 
 | # | Fattura | Tipo | Milestone | Importo | Emissione prevista | Scadenza |
@@ -85,41 +98,28 @@
 
 ## TODO aperti
 1. ~~Emettere FATT-001 (acconto €2.040) — pronta per invio~~ ✅ Incassata
-2. Verificare P.IVA e dati fiscali Vetronaviglio s.r.l.
-3. ~~Integrare FedEx Track API (chiave sviluppo disponibile)~~ ✅ M2 completato
-4. Configurare Supabase project (schema + RLS)
-5. Setup autenticazione (login page, middleware)
-6. Definire costi diretti (hosting, licenze)
+2. ~~Integrare FedEx Track API~~ ✅ M2 completato
+3. ~~Configurare Supabase project (schema + RLS)~~ ✅ M1 completato
+4. ~~Setup autenticazione (login page, middleware)~~ ✅ M1 completato
+5. ~~M5 Testing~~ ✅ 31/31 test passati
+6. **Deploy Vercel** — in attesa di token Vercel valido
+7. Go-live produzione
 
 ## Problemi aperti
-- Problema: Nessun problema noto
-- Ipotesi: Cliente accetta incarico e paga acconto
-- Blocco attuale: Nessuno
+- Deploy Vercel bloccato: token non valido, attendere credenziali aggiornate
+- App funzionante in locale (npm run dev)
 
-## File toccati
-- `docs/admin/cashflow.md`
-- `docs/admin/ledger.md`
-- `docs/admin/solleciti.md`
-- `docs/invoices/index.md`
-- `supabase/migrations/001_initial_schema.sql`
-- `app/src/types/tracking.ts`
-- `app/src/types/fedex.ts`
-- `app/src/lib/shipments.ts`
-- `app/src/lib/fedex.ts`
-- `app/src/components/layout/Sidebar.tsx`
-- `app/src/components/layout/Layout.tsx`
-- `app/src/pages/Dashboard.tsx`
-- `app/src/pages/Shipments.tsx`
-- `app/src/pages/Settings.tsx`
-- `app/src/pages/ShipmentDetail.tsx`
-- `app/src/pages/ShipmentForm.tsx`
-- `app/src/components/charts/StatusPieChart.tsx`
-- `app/src/components/charts/CarrierBarChart.tsx`
-- `app/src/lib/csv.ts`
-- `app/src/pages/ShipmentEdit.tsx`
-- `app/src/App.tsx`
-- `.env.example`
+## File toccati (M5)
+- `app/README.md` — aggiornato per Vetronaviglio Tracking MVP
+- `app/AGENTS.md` — Current Focus aggiornato
+- `app/PROJECT_AI_NOTES.md` — questa nota
+- `app/src/lib/__tests__/csv.test.ts` — 16 test
+- `app/src/lib/__tests__/fedex.test.ts` — 10 test
+- `app/src/types/__tests__/tracking.test.ts` — 4 test
+- `app/vitest.config.ts` — config Vitest
+- `app/package.json` — script test aggiunti
+- `app/index.html` — titolo aggiornato
 
 ## Prossimo step suggerito
-- Commit M4 su branch `develop`
-- M5: Testing + go-live
+- Deploy Vercel (ottenere token valido)
+- Go-live produzione

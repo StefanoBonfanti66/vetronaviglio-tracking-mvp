@@ -16,22 +16,17 @@
 
 ### Completato
 - Bootstrap progetto da template `triathlon-starter`
-- CI/CD fix: `@vitejs/plugin-react` aggiornato a `^5.2.0` (compatibilità Vite 6.x)
-- Documentazione ZBN completa: brief, positioning, pricing, admin-check, preventivo, email preventivo, project plan, kickoff interno/cliente, runbook, ledger, cashflow, solleciti, invoice index
-- Struttura `docs/` inizializzata con `_INDEX.md` e `changelog.md`
-- FATT-001 (acconto 20% = €2.040) incassata
-- **M1 completato:** Schema Supabase, types, lib query, layout, pagine base, typecheck + build OK
-- **M2 completato:** FedEx API client (OAuth2, track), types, settings page con test connessione
-- **M3 completato:** Dashboard avanzata (grafici pie/bar, timeline eventi, form nuova spedizione, filtri corriere)
-- **M4 completato:** Gestione manuale/CSV spedizioni (ordinamento, modifica/elimina, import CSV, export CSV)
+- **M1:** Schema Supabase, types, lib query, layout, pagine base
+- **M2:** FedEx API client (OAuth2, track), settings page
+- **M3:** Dashboard avanzata (grafici pie/bar, timeline, form, filtri)
+- **M4:** Gestione manuale/CSV spedizioni (ordinamento, modifica/elimina, import/export)
+- **M5:** Testing completato — 31 test Vitest, typecheck, build OK
+- README.md aggiornato per Vetronaviglio Tracking MVP
 
 ### In corso
-- Branch `develop` attivo con M1 + M2 + M3 + M4
-- Stack: React 19 + TypeScript + Vite + TailwindCSS v4 + Supabase + recharts
+- Deploy Vercel (in attesa di token valido)
+- Branch `develop`
 
-### Da fare
-- Aggiornare `README.md` (ancora template generico triathlon-starter)
-- M5: Testing + go-live
-
-### Prossimo step concreto
-Commit M4 su `develop`, poi procedere con M5 (Testing + go-live).
+### Prossimo step
+- Completare deploy Vercel
+- Go-live produzione

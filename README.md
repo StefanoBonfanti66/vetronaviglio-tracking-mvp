@@ -1,126 +1,59 @@
-# Triathlon Starter
+# Vetronaviglio Tracking MVP
 
-Starter repository personale per avviare rapidamente nuovi progetti web con una base moderna già pronta.
+Dashboard unificata multi-corriere per Vetronaviglio s.r.l. (Bareggio, MI).
 
-## Quando usarlo
-Usa questo repository quando vuoi iniziare un nuovo progetto con:
-- React 19
-- TypeScript
-- Vite
-- TailwindCSS v4
-- Supabase
-- Vercel
+Stack: React 19 + TypeScript + Vite + TailwindCSS v4 + Supabase + recharts.
 
-## Cosa include già
-- Bootstrap frontend Vite + React + TypeScript
-- Supabase client setup
-- GitHub Actions per CI, Deploy, CodeQL e notifiche Telegram
-- Guida di bootstrap e file di supporto per sessioni OpenCode
+## Milestones
 
-## Cosa non include ancora di default
-- ESLint configurato
-- Test framework (Vitest/Jest)
-- Branding finale del progetto, da personalizzare dopo il clone
+- **M1** — Schema Supabase, types, lib query, layout, pagine base
+- **M2** — FedEx API client (OAuth2, track), settings page
+- **M3** — Dashboard avanzata (grafici pie/bar, timeline, form spedizione, filtri)
+- **M4** — Gestione manuale/CSV spedizioni (ordinamento, modifica/elimina, import/export)
+- **M5** — Testing + go-live ✅
+
+## Funzionalità
+
+- Dashboard con statistiche e grafici (stato spedizioni, corrieri)
+- Tabella spedizioni con ricerca, filtri, ordinamento
+- Dettaglio spedizione con timeline eventi
+- Creazione/modifica/eliminazione spedizioni
+- Import/export CSV
+- Integrazione API FedEx (sandbox)
+- Gestione corrieri e test connessione
 
 ## Struttura
-- `app/` → applicazione frontend
-- `.env.example` → variabili ambiente di esempio
-- `AGENTS.md` → istruzioni operative per sessioni AI/OpenCode
-- `PROJECT_AI_NOTES.md` → note progetto
+
+```
+app/
+├── src/
+│   ├── components/   # Layout, grafici
+│   ├── lib/          # Query DB, API FedEx, CSV
+│   ├── pages/        # Dashboard, Spedizioni, Settings
+│   └── types/        # TypeScript definitions
+├── supabase/         # Schema e migrazioni
+└── docs/             # Documentazione progetto
+```
 
 ## Setup
 
 ```bash
 cd app
 cp ../.env.example .env
+# Inserire VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY in .env
 npm install
 npm run dev
 ```
 
-## Checklist nuovo progetto
-- Rinominare la repo GitHub
-- Aggiornare `app/package.json`
-- Configurare Supabase
-- Configurare Vercel
-- Aggiornare `.env`
-- Personalizzare `AGENTS.md`
-- Aggiornare `PROJECT_AI_NOTES.md`
+## Scripts
 
-## Required GitHub Secrets
+| Comando | Descrizione |
+|---|---|
+| `npm run dev` | Sviluppo con hot-reload |
+| `npm run build` | Build produzione (tsc + vite) |
+| `npm run test` | Test unitari (vitest) |
+| `npm run typecheck` | Controllo tipi TypeScript |
 
-Questo starter si aspetta i seguenti secret a livello repository per i workflow GitHub Actions inclusi di default:
+## Test
 
-- `TELEGRAM_BOT_TOKEN`  
-  Token del bot Telegram usato per inviare notifiche CI e Deploy.
-
-- `TELEGRAM_CHAT_ID`  
-  Chat o canale che riceverà le notifiche Telegram.
-
-- `VERCEL_TOKEN`  
-  Token di accesso Vercel usato dal workflow `Deploy`.
-
-- `VERCEL_ORG_ID`  
-  Organization id Vercel del progetto di destinazione.
-
-- `VERCEL_PROJECT_ID`  
-  Project id Vercel associato alla repo.
-
-Se questi secret mancano, il comportamento dipende dal contesto:
-- **Telegram**: i workflow di notifica falliscono (i secret sono dichiarati `required` nel reusable).
-- **Vercel**: il workflow `Deploy` salta gli step di produzione senza fallire.
-- **CI**: non richiede alcun secret.
-
-## GitHub Actions workflow naming conventions
-
-Questo template riserva i seguenti nomi workflow:
-
-- `CI`  
-  Pipeline principale di continuous integration. Triggerata su push (main, develop, feat/*, fix/*) e su tutte le PR.
-
-- `Deploy`  
-  Pipeline di deploy production via Vercel CLI. Triggerata su push su main e manualmente via `workflow_dispatch`.
-
-Altri workflow reagiscono a questi nomi tramite `workflow_run`:
-
-- `Telegram CI Notify`  
-  Invia un messaggio Telegram quando il workflow `CI` termina.
-
-- `Telegram Deploy Notify`  
-  Invia un messaggio Telegram quando il workflow `Deploy` termina.
-
-Se rinomini `CI` o `Deploy`, devi aggiornare anche l'array `workflows` nei workflow Telegram relativi.
-
-## Default GitHub Actions included
-
-Questo starter include di default i seguenti workflow:
-
-- `CI`  
-  Pipeline CI Node-aware. Rileva automaticamente la presenza di `package.json` e salta gli step Node se il file non esiste ancora.
-
-- `Deploy`  
-  Pipeline di deploy production su Vercel. Parte solo quando:
-  - la repo contiene un `package.json`
-  - i secret Vercel richiesti sono presenti
-
-- `Telegram CI Notify`  
-  Ascolta gli eventi `workflow_run` del workflow `CI` e invia una notifica Telegram al completamento.
-
-- `Telegram Deploy Notify`  
-  Ascolta gli eventi `workflow_run` del workflow `Deploy` e invia una notifica Telegram al completamento.
-
-- `Telegram Notify Reusable`  
-  Workflow riutilizzabile che centralizza la logica di invio Telegram.
-
-- `CodeQL`  
-  Analisi di sicurezza CodeQL di GitHub. Eseguita su push/PR su main e settimanalmente (lunedì 04:00).
-
-- `Lint workflows`  
-  Esegue `yamllint` sui file in `.github/workflows` su push, pull request e `workflow_dispatch`.
-
-- `Telegram Test` / `Telegram Test Reusable`  
-  Workflow interni usati per validare l'integrazione Telegram.
-
-## Convenzioni
-- Branch `main` protetto
-- Usare feature branch e PR
-- Aprire una sessione con `opencode` e seguire `AGENTS.md`
+31 test Vitest (csv.test.ts, fedex.test.ts, tracking.test.ts).
