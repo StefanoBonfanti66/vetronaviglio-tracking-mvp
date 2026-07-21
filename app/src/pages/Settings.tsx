@@ -1,16 +1,47 @@
 import { useEffect, useState } from 'react'
 import { getCarriers } from '../lib/shipments'
+import { getFedExClient } from '../lib/fedex'
 import type { Carrier } from '../types/tracking'
 
 export default function Settings() {
   const [carriers, setCarriers] = useState<Carrier[]>([])
   const [loading, setLoading] = useState(true)
+  const [fedexStatus, setFedexStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
+  const [fedexMessage, setFedexMessage] = useState('')
+  const [testTrackingNumber, setTestTrackingNumber] = useState('')
 
   useEffect(() => {
     getCarriers()
       .then(setCarriers)
       .finally(() => setLoading(false))
   }, [])
+
+  const handleTestFedEx = async () => {
+    const client = getFedExClient()
+    if (!client) {
+      setFedexStatus('error')
+      setFedexMessage('Variabili d\'ambiente FedEx non configurate')
+      return
+    }
+
+    if (!testTrackingNumber) {
+      setFedexStatus('error')
+      setFedexMessage('Inserisci un numero di tracking per il test')
+      return
+    }
+
+    setFedexStatus('testing')
+    setFedexMessage('Test connessione in corso...')
+
+    try {
+      const result = await client.track(testTrackingNumber)
+      setFedexStatus('success')
+      setFedexMessage(`OK - Stato: ${result.trackResult.latestStatusDetail.eventDescription}`)
+    } catch (error) {
+      setFedexStatus('error')
+      setFedexMessage(`Errore: ${error instanceof Error ? error.message : 'Connessione fallita'}`)
+    }
+  }
 
   return (
     <div>
@@ -49,10 +80,59 @@ export default function Settings() {
 
       <div className="mt-6 bg-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-lg font-semibold text-slate-700 mb-4">Configurazione FedEx API</h2>
-        <p className="text-sm text-slate-500">
-          La chiave API FedEx dovra essere configurata nelle variabili d&apos;ambiente.
-          Consulta il runbook per istruzioni dettagliate.
-        </p>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-slate-500">Ambiente:</p>
+              <p className="font-medium">{import.meta.env.VITE_FEDEX_ENVIRONMENT || 'Non configurato'}</p>
+            </div>
+            <div>
+              <p className="text-slate-500">Endpoint:</p>
+              <p className="font-medium text-xs break-all">{import.meta.env.VITE_FEDEX_BASE_URL || 'Non configurato'}</p>
+            </div>
+            <div>
+              <p className="text-slate-500">API Key:</p>
+              <p className="font-medium">{import.meta.env.VITE_FEDEX_API_KEY ? '••••••••' : 'Non configurato'}</p>
+            </div>
+            <div>
+              <p className="text-slate-500">Codice cliente:</p>
+              <p className="font-medium">{import.meta.env.VITE_FEDEX_CUSTOMER_CODE || 'Non configurato'}</p>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-100 pt-4">
+            <h3 className="text-sm font-medium text-slate-700 mb-2">Test connessione</h3>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Numero di tracking di test"
+                value={testTrackingNumber}
+                onChange={(e) => setTestTrackingNumber(e.target.value)}
+                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={handleTestFedEx}
+                disabled={fedexStatus === 'testing'}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                {fedexStatus === 'testing' ? 'Test in corso...' : 'Testa connessione'}
+              </button>
+            </div>
+
+            {fedexMessage && (
+              <div className={`mt-2 p-2 rounded text-sm ${
+                fedexStatus === 'success' 
+                  ? 'bg-emerald-50 text-emerald-700' 
+                  : fedexStatus === 'error'
+                  ? 'bg-red-50 text-red-700'
+                  : 'bg-blue-50 text-blue-700'
+              }`}>
+                {fedexMessage}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

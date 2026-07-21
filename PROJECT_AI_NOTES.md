@@ -4,8 +4,8 @@
 
 ## Obiettivo
 - Scopo: MVP dashboard per tracking spedizioni multi-corriere (FedEx API + gestione manuale)
-- Stato attuale: **M1 completato — Fase sviluppo in corso**
-- Risultato atteso della sessione: Commit M1, proseguire con M2
+- Stato attuale: **M2 completato — Fase sviluppo in corso**
+- Risultato atteso della sessione: Commit M2, proseguire con M3
 
 ## Stack e vincoli
 - Frontend: React 19 + TypeScript + Vite + TailwindCSS
@@ -45,6 +45,13 @@
 - Typecheck: `npx tsc --noEmit` ✅
 - Build: `npm run build` ✅ (455KB JS, 14KB CSS)
 
+### M2 — FedEx API integration (2026-07-21)
+- FedEx client: `app/src/lib/fedex.ts` (OAuth2, track, trackMultiple)
+- FedEx types: `app/src/types/fedex.ts`
+- Settings page aggiornata con test connessione FedEx
+- `.env.example` aggiornato con FedEx credentials (sandbox)
+- Status mapping: FedEx → shipment status interno
+
 ## Struttura fatturazione
 
 | # | Fattura | Tipo | Milestone | Importo | Emissione prevista | Scadenza |
@@ -57,7 +64,7 @@
 ## TODO aperti
 1. ~~Emettere FATT-001 (acconto €2.040) — pronta per invio~~ ✅ Incassata
 2. Verificare P.IVA e dati fiscali Vetronaviglio s.r.l.
-3. Integrare FedEx Track API (chiave sviluppo disponibile)
+3. ~~Integrare FedEx Track API (chiave sviluppo disponibile)~~ ✅ M2 completato
 4. Configurare Supabase project (schema + RLS)
 5. Setup autenticazione (login page, middleware)
 6. Definire costi diretti (hosting, licenze)
@@ -74,7 +81,9 @@
 - `docs/invoices/index.md`
 - `supabase/migrations/001_initial_schema.sql`
 - `app/src/types/tracking.ts`
+- `app/src/types/fedex.ts`
 - `app/src/lib/shipments.ts`
+- `app/src/lib/fedex.ts`
 - `app/src/components/layout/Sidebar.tsx`
 - `app/src/components/layout/Layout.tsx`
 - `app/src/pages/Dashboard.tsx`
@@ -84,6 +93,6 @@
 - `.env.example`
 
 ## Prossimo step suggerito
-- Commit M1 su branch `develop`
-- M2: Integrare FedEx Track API (1-2 settimane)
+- Commit M2 su branch `develop`
 - M3: Dashboard frontend avanzata
+- M4: Gestione manuale/CSV spedizioni
