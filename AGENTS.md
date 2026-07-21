@@ -23,15 +23,15 @@
 - **M1 completato:** Schema Supabase, types, lib query, layout, pagine base, typecheck + build OK
 - **M2 completato:** FedEx API client (OAuth2, track), types, settings page con test connessione
 - **M3 completato:** Dashboard avanzata (grafici pie/bar, timeline eventi, form nuova spedizione, filtri corriere)
+- **M4 completato:** Gestione manuale/CSV spedizioni (ordinamento, modifica/elimina, import CSV, export CSV)
 
 ### In corso
-- Branch `develop` attivo con M1 + M2 + M3
+- Branch `develop` attivo con M1 + M2 + M3 + M4
 - Stack: React 19 + TypeScript + Vite + TailwindCSS v4 + Supabase + recharts
 
 ### Da fare
 - Aggiornare `README.md` (ancora template generico triathlon-starter)
-- M4: Gestione manuale/CSV spedizioni
 - M5: Testing + go-live
 
 ### Prossimo step concreto
-Commit M3 su `develop`, poi procedere con M4 (Gestione manuale/CSV spedizioni).
+Commit M4 su `develop`, poi procedere con M5 (Testing + go-live).

@@ -106,16 +106,25 @@ export async function createShipment(shipment: {
   return data
 }
 
-export async function updateShipmentStatus(
+export async function updateShipment(
   shipmentId: string,
-  status: ShipmentStatus,
-  statusDescription?: string
+  updates: {
+    tracking_number?: string
+    carrier_id?: string
+    status?: ShipmentStatus
+    status_description?: string
+    customer_name?: string
+    customer_reference?: string
+    order_number?: string
+    origin?: string
+    destination?: string
+    notes?: string
+  }
 ): Promise<Shipment> {
   const { data, error } = await supabase
     .from('shipments')
     .update({
-      status,
-      status_description: statusDescription ?? null,
+      ...updates,
       last_update: new Date().toISOString(),
     })
     .eq('id', shipmentId)
@@ -124,4 +133,42 @@ export async function updateShipmentStatus(
 
   if (error) throw error
   return data
+}
+
+export async function updateShipmentStatus(
+  shipmentId: string,
+  status: ShipmentStatus,
+  statusDescription?: string
+): Promise<Shipment> {
+  return updateShipment(shipmentId, { status, status_description: statusDescription })
+}
+
+export async function deleteShipment(shipmentId: string): Promise<void> {
+  const { error } = await supabase
+    .from('shipments')
+    .delete()
+    .eq('id', shipmentId)
+
+  if (error) throw error
+}
+
+export async function createShipmentsBulk(
+  shipments: Array<{
+    tracking_number: string
+    carrier_id: string
+    customer_name?: string
+    customer_reference?: string
+    order_number?: string
+    origin?: string
+    destination?: string
+    notes?: string
+  }>
+): Promise<Shipment[]> {
+  const { data, error } = await supabase
+    .from('shipments')
+    .insert(shipments.map(s => ({ ...s, status: 'pending' as ShipmentStatus })))
+    .select('*, carrier:carriers(*)')
+
+  if (error) throw error
+  return data ?? []
 }

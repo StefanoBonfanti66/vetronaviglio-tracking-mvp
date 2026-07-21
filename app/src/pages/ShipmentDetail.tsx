@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { getShipmentById, getTrackingEvents } from '../lib/shipments'
 import { STATUS_LABELS, STATUS_COLORS } from '../types/tracking'
 import type { Shipment, TrackingEvent } from '../types/tracking'
@@ -28,6 +28,7 @@ function TimelineItem({ event, isLast }: { event: TrackingEvent; isLast: boolean
 
 export default function ShipmentDetail() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [shipment, setShipment] = useState<Shipment | null>(null)
   const [events, setEvents] = useState<TrackingEvent[]>([])
   const [loading, setLoading] = useState(true)
@@ -89,9 +90,17 @@ export default function ShipmentDetail() {
           <h1 className="text-2xl font-bold text-slate-800 font-mono">{shipment.tracking_number}</h1>
           <p className="text-sm text-slate-500 mt-1">{shipment.carrier?.name ?? 'Corriere sconosciuto'}</p>
         </div>
-        <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${STATUS_COLORS[shipment.status]}`}>
-          {STATUS_LABELS[shipment.status]}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${STATUS_COLORS[shipment.status]}`}>
+            {STATUS_LABELS[shipment.status]}
+          </span>
+          <button
+            onClick={() => navigate(`/shipments/${id}/edit`)}
+            className="border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+          >
+            Modifica
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

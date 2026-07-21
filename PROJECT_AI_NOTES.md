@@ -4,8 +4,8 @@
 
 ## Obiettivo
 - Scopo: MVP dashboard per tracking spedizioni multi-corriere (FedEx API + gestione manuale)
-- Stato attuale: **M3 completato — Fase sviluppo in corso**
-- Risultato atteso della sessione: Commit M3, proseguire con M4
+- Stato attuale: **M4 completato — Fase sviluppo in corso**
+- Risultato atteso della sessione: Commit M4, proseguire con M5
 
 ## Stack e vincoli
 - Frontend: React 19 + TypeScript + Vite + TailwindCSS
@@ -64,6 +64,16 @@
 - Typecheck: `npx tsc --noEmit` ✅
 - Build: `npm run build` ✅ (683 modules, 874KB JS / 251KB gzip)
 
+### M4 — Gestione manuale/CSV spedizioni (2026-07-21)
+- `app/src/lib/shipments.ts` — aggiunte funzioni: `updateShipment`, `deleteShipment`, `createShipmentsBulk`
+- `app/src/lib/csv.ts` — nuovo file: parsing CSV, validazione con mapping corrieri, export CSV, download
+- `app/src/pages/ShipmentEdit.tsx` — nuovo file: form modifica/elimina spedizione esistente
+- `app/src/pages/Shipments.tsx` — riscritta: ordinamento colonne, import CSV modal, export CSV
+- `app/src/pages/ShipmentDetail.tsx` — aggiunto bottone "Modifica" che linka a `/shipments/:id/edit`
+- `app/src/App.tsx` — route aggiunta: `/shipments/:id/edit`
+- Typecheck: `npx tsc --noEmit` ✅
+- Build: `npm run build` ✅ (685 modules, 889KB JS / 254KB gzip)
+
 ## Struttura fatturazione
 
 | # | Fattura | Tipo | Milestone | Importo | Emissione prevista | Scadenza |
@@ -105,9 +115,11 @@
 - `app/src/pages/ShipmentForm.tsx`
 - `app/src/components/charts/StatusPieChart.tsx`
 - `app/src/components/charts/CarrierBarChart.tsx`
+- `app/src/lib/csv.ts`
+- `app/src/pages/ShipmentEdit.tsx`
 - `app/src/App.tsx`
 - `.env.example`
 
 ## Prossimo step suggerito
-- Commit M3 su branch `develop`
-- M4: Gestione manuale/CSV spedizioni
+- Commit M4 su branch `develop`
+- M5: Testing + go-live
