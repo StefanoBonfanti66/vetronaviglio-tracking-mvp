@@ -12,17 +12,26 @@
 - Use `PROJECT_AI_NOTES.md` to track decisions, checkpoints, and pending items across sessions.
 - If you use custom commands in your OpenCode setup, document project-specific ones here or in the repository docs.
 
-## Current Focus — 2026-05-25
+## Current Focus — 2026-07-21
 
 ### Completato
-- Diagnosi e fix CI: `@vitejs/plugin-react` aggiornato da `^4.3.4` a `^5.2.0` per compatibilità con Vite 8.x
-- Aggiunto header template a `PROJECT_AI_NOTES.md`
-- Merge di `fix/template-onboarding-ci` in `main` e push
+- Bootstrap progetto da template `triathlon-starter`
+- CI/CD fix: `@vitejs/plugin-react` aggiornato a `^5.2.0` (compatibilità Vite 6.x)
+- Documentazione ZBN completa: brief, positioning, pricing, admin-check, preventivo, email preventivo, project plan, kickoff interno/cliente, runbook, ledger, cashflow, solleciti, invoice index
+- Struttura `docs/` inizializzata con `_INDEX.md` e `changelog.md`
+- FATT-001 (acconto 20% = €2.040) incassata
+- **M1 completato:** Schema Supabase, types, lib query, layout, pagine base, typecheck + build OK
 
-### Da fare / miglioramenti futuri
-- Aggiungere ESLint configurato (segnalato in README come mancante)
-- Aggiungere test framework (Vitest/Jest) — segnalato in README come mancante
-- Valutare se serve `dependabot.yml` e CodeQL workflow già presente
+### In corso
+- Branch `develop` attivo con M1
+- Stack: React 19 + TypeScript + Vite + TailwindCSS v4 + Supabase
+
+### Da fare
+- Aggiornare `README.md` (ancora template generico triathlon-starter)
+- Integrare FedEx API (chiave sviluppo disponibile)
+- M2: FedEx API integration
+- M3: Dashboard frontend
+- M5: Testing + go-live
 
 ### Prossimo step concreto
-Prima di una nuova sessione: pullare `main`, aprire `PROJECT_AI_NOTES.md`, compilare Obiettivo e Risultato atteso della sessione.
+Commit M1 su `develop`, poi procedere con M2 (FedEx API integration).
