@@ -1,0 +1,5 @@
+[   36335ms] Error: supabaseUrl is required.
+    at zU (http://192.168.24.104:5173/assets/index-DawYldl_.js:103:48096)
+    at new BU (http://192.168.24.104:5173/assets/index-DawYldl_.js:103:48466)
+    at HU (http://192.168.24.104:5173/assets/index-DawYldl_.js:103:51993)
+    at http://192.168.24.104:5173/assets/index-DawYldl_.js:103:52481
