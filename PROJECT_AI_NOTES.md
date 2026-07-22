@@ -4,7 +4,7 @@
 
 ## Obiettivo
 - Scopo: MVP dashboard per tracking spedizioni multi-corriere (FedEx API + gestione manuale)
-- Stato attuale: **M5 completato — Pronto per go-live**
+- Stato attuale: **M5 completato — Go-live confermato**
 - Risultato atteso: Deploy produzione su Vercel
 
 ## Stack e vincoli
@@ -85,7 +85,18 @@
 - README.md aggiornato con descrizione progetto, milestones, setup
 - AGENTS.md aggiornato con Current Focus M5
 - index.html titolo: "Vetronaviglio — Tracking Dashboard"
-- Appunti: Deploy Vercel in attesa di token valido
+
+### Post-M5 — Integrations + production (2026-07-22)
+- **Rebranding completo:** logo, favicon, colori brand (#0977b4, #35bfae, #162a37), font Segoe UI
+- **Deploy Vercel:** Production live su `app-blond-omega-14.vercel.app`
+- **Supabase:** Project `vetronaviglio-tracking` (ebcxgmaavbhjkwhtkcie), schema, carriers seeded
+- **CSV import fix:** BOM stripping, delimiter detection (tab/comma), alias intestazioni italiane, carrier_code opzionale con auto-detect
+- **FedEx API proxy:** Serverless routes `/api/fedex/token` + `/api/fedex/track` (CORS bypass)
+- **FedEx production:** Credenziali production configurate, 61 spedizioni tracciate (57 delivered, 4 in transit)
+- **Cron job:** `/api/cron/refresh-tracking` — daily 06:00 UTC + pulsante manuale Dashboard
+- **Env vars:** Tutte configurate su Vercel (Supabase, FedEx prod, CRON_SECRET)
+- **Test:** 36/36 Vitest passano ✅
+- **Commit:** `f118793` feat(cron+fedex-proxy) pushato su develop
 
 ## Struttura fatturazione
 
@@ -101,25 +112,32 @@
 2. ~~Integrare FedEx Track API~~ ✅ M2 completato
 3. ~~Configurare Supabase project (schema + RLS)~~ ✅ M1 completato
 4. ~~Setup autenticazione (login page, middleware)~~ ✅ M1 completato
-5. ~~M5 Testing~~ ✅ 31/31 test passati
-6. **Deploy Vercel** — in attesa di token Vercel valido
-7. Go-live produzione
+5. ~~M5 Testing~~ ✅ 36/36 test passati
+6. ~~Deploy Vercel~~ ✅ Production live
+7. ~~FedEx production~~ ✅ 61 spedizioni tracciate
+8. ~~Cron job auto-refresh~~ ✅ Daily 06:00 UTC
+9. **FATT-002** — Emettere post-M2 (€2.040)
+10. **FATT-003** — Emettere post-M3 (€3.060)
+11. **FATT-004** — Emettere go-live M5 (€3.060)
 
 ## Problemi aperti
-- Deploy Vercel bloccato: token non valido, attendere credenziali aggiornate
-- App funzionante in locale (npm run dev)
+- Nessuno — app funzionante in produzione
 
-## File toccati (M5)
+## File toccati (M5 + post-M5)
 - `app/README.md` — aggiornato per Vetronaviglio Tracking MVP
 - `app/AGENTS.md` — Current Focus aggiornato
 - `app/PROJECT_AI_NOTES.md` — questa nota
-- `app/src/lib/__tests__/csv.test.ts` — 16 test
+- `app/src/lib/__tests__/csv.test.ts` — 36 test
 - `app/src/lib/__tests__/fedex.test.ts` — 10 test
 - `app/src/types/__tests__/tracking.test.ts` — 4 test
 - `app/vitest.config.ts` — config Vitest
 - `app/package.json` — script test aggiunti
 - `app/index.html` — titolo aggiornato
+- `app/api/fedex/token.ts` — OAuth2 proxy
+- `app/api/fedex/track.ts` — Tracking proxy
+- `app/api/cron/refresh-tracking.ts` — Cron job
+- `app/vercel.json` — Cron config + route
 
 ## Prossimo step suggerito
-- Deploy Vercel (ottenere token valido)
-- Go-live produzione
+- Emettere FATT-002 (post-M2, €2.040)
+- Raccogliere feedback cliente su app production
