@@ -37,32 +37,31 @@ export type FedExTrackEvent = {
 }
 
 export type FedExTrackResult = {
-  trackingNumber: string
-  trackResult: {
-    trackingNumberInfo: {
-      trackingNumber: string
-      carrierCode: string
+  trackingNumberInfo: {
+    trackingNumber: string
+    carrierCode: string
+  }
+  latestStatusDetail: {
+    date: string
+    eventType: string
+    code: string
+    derivedCode: string
+    description: string
+    statusByLocale: string
+    scanLocation: {
+      streetLines: string[]
+      city: string
+      stateOrProvinceCode: string
+      countryCode: string
+      postalCode: string
     }
-    latestStatusDetail: {
-      date: string
-      eventType: string
-      eventDescription: string
-      status: string
-      scanLocation: {
-        streetLines: string[]
-        city: string
-        stateOrProvinceCode: string
-        countryCode: string
-        postalCode: string
-      }
-    }
-    scanEvents: FedExTrackEvent[]
-    additionalTrackingInfo: {
-      packageIdentifiers: Array<{
-        type: string
-        values: string[]
-      }>
-    }
+  }
+  scanEvents: FedExTrackEvent[]
+  additionalTrackingInfo: {
+    packageIdentifiers: Array<{
+      type: string
+      values: string[]
+    }>
   }
 }
 

@@ -1,77 +1,29 @@
-import type {
-  FedExConfig,
-  FedExAuthResponse,
-  FedExTrackRequest,
-  FedExTrackResponse,
-  FedExTrackResult,
-} from '../types/fedex'
+import type { FedExTrackResult } from '../types/fedex'
 import type { ShipmentStatus } from '../types/tracking'
 
-// FedEx API client
+// Browser-side FedEx client — calls our Vercel serverless API proxy
+// to avoid CORS issues with FedEx API
 export class FedExClient {
-  private config: FedExConfig
-  private accessToken: string | null = null
-  private tokenExpiry: number = 0
+  private apiBase: string
 
-  constructor(config: FedExConfig) {
-    this.config = config
-  }
-
-  private async authenticate(): Promise<void> {
-    if (this.accessToken && Date.now() < this.tokenExpiry) {
-      return
-    }
-
-    const credentials = btoa(`${this.config.apiKey}:${this.config.secretKey}`)
-
-    const response = await fetch(`${this.config.baseUrl}/oauth/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${credentials}`,
-      },
-      body: 'grant_type=client_credentials',
-    })
-
-    if (!response.ok) {
-      throw new Error(`FedEx authentication failed: ${response.status}`)
-    }
-
-    const data: FedExAuthResponse = await response.json()
-    this.accessToken = data.access_token
-    this.tokenExpiry = Date.now() + (data.expires_in - 60) * 1000 // Refresh 1 min before expiry
+  constructor() {
+    this.apiBase = '/api/fedex'
   }
 
   async track(trackingNumber: string): Promise<FedExTrackResult> {
-    await this.authenticate()
-
-    const request: FedExTrackRequest = {
-      includeDetailedScans: true,
-      trackingInfo: [
-        {
-          trackingNumberInfo: {
-            trackingNumber,
-          },
-        },
-      ],
-    }
-
-    const response = await fetch(`${this.config.baseUrl}/track/v1/trackingnumbers`, {
+    const response = await fetch(`${this.apiBase}/track`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.accessToken}`,
-        'X-locale': 'it_IT',
-      },
-      body: JSON.stringify(request),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trackingNumber }),
     })
 
     if (!response.ok) {
-      throw new Error(`FedEx tracking failed: ${response.status}`)
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || `FedEx tracking failed: ${response.status}`)
     }
 
-    const data: FedExTrackResponse = await response.json()
-    const results = data.output.completeTrackResults[0]?.trackResults
+    const data = await response.json()
+    const results = data.output?.completeTrackResults?.[0]?.trackResults
     if (!results || results.length === 0) {
       throw new Error(`No tracking data found for: ${trackingNumber}`)
     }
@@ -80,34 +32,17 @@ export class FedExClient {
   }
 
   async trackMultiple(trackingNumbers: string[]): Promise<FedExTrackResult[]> {
-    await this.authenticate()
-
-    const request: FedExTrackRequest = {
-      includeDetailedScans: true,
-      trackingInfo: trackingNumbers.map((number) => ({
-        trackingNumberInfo: {
-          trackingNumber: number,
-        },
-      })),
+    const results: FedExTrackResult[] = []
+    // FedEx API doesn't support batch via our proxy — track one by one
+    for (const tn of trackingNumbers) {
+      try {
+        const result = await this.track(tn)
+        results.push(result)
+      } catch {
+        // Skip failed tracking numbers in batch
+      }
     }
-
-    const response = await fetch(`${this.config.baseUrl}/track/v1/trackingnumbers`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.accessToken}`,
-        'X-locale': 'it_IT',
-      },
-      body: JSON.stringify(request),
-    })
-
-    if (!response.ok) {
-      throw new Error(`FedEx batch tracking failed: ${response.status}`)
-    }
-
-    const data: FedExTrackResponse = await response.json()
-    const trackResults = data.output.completeTrackResults[0]?.trackResults
-    return trackResults || []
+    return results
   }
 }
 
@@ -127,30 +62,13 @@ export function mapFedExStatus(fedexStatus: string): ShipmentStatus {
   return statusMap[fedexStatus] || 'in_transit'
 }
 
-// Get FedEx client from environment variables
-// Convenience function for tracking a single shipment
-export async function trackFedExShipment(trackingNumber: string) {
-  const client = getFedExClient()
-  if (!client) {
-    throw new Error('FedEx client not configured')
-  }
-  return client.track(trackingNumber)
-}
-
 export function getFedExClient(): FedExClient | null {
+  // Check if FedEx is configured — in the browser we only check for the API key
+  // The actual secrets are on the server side (Vercel env vars without VITE_ prefix)
   const apiKey = import.meta.env.VITE_FEDEX_API_KEY
-  const secretKey = import.meta.env.VITE_FEDEX_SECRET_KEY
-  const baseUrl = import.meta.env.VITE_FEDEX_BASE_URL
-  const customerCode = import.meta.env.VITE_FEDEX_CUSTOMER_CODE
-
-  if (!apiKey || !secretKey || !baseUrl || !customerCode) {
+  if (!apiKey) {
     return null
   }
 
-  return new FedExClient({
-    apiKey,
-    secretKey,
-    baseUrl,
-    customerCode,
-  })
+  return new FedExClient()
 }

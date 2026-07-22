@@ -1,0 +1,21 @@
+tracking_number,carrier_code,recipient_name,recipient_address,recipient_city,recipient_zip,recipient_country,status,estimated_delivery,notes
+FDX123456789IT,fedex,Mario Rossi,Via Roma 12,Milano,20121,IT,delivered,2026-07-18,
+FDX987654321IT,fedex,Luca Bianchi,Corso Italia 45,Torino,10122,IT,in_transit,2026-07-23,Urgente
+FDX456789123IT,fedex,Anna Verdi,Piazza Duomo 8,Roma,00186,IT,out_for_delivery,2026-07-22,
+FDX321654987IT,fedex,Giulia Neri,Via Dante 23,Napoli,80139,IT,pending,2026-07-25,
+DHL1234567890,dhl,Paolo Gialli,Viale Monza 55,Milano,20125,IT,in_transit,2026-07-23,Fragile
+DHL9876543210,dhl,Elena Marroni,Via Garibaldi 18,Bologna,40124,IT,delivered,2026-07-19,
+DHL4567891234,dhl,Marco Cellini,Via Mazzini 67,Padova,35100,IT,pending,2026-07-26,
+DHL3216549876,dhl,Sofia Ferrara,Piazza Navona 3,Roma,00186,IT,out_for_delivery,2026-07-22,
+GLS0012345678,gls,Antonio Romano,Via Po 12,Roma,00198,IT,delivered,2026-07-17,
+GLS0087654321,gls,Francesca Totti,Corso Vittorio 78,Firenze,50123,IT,in_transit,2026-07-24,
+GLS0056781234,gls,Roberto Sacchi,Via Padova 29,Milano,20131,IT,exception,2026-07-21,Indirizzo errato
+BRT0011223344,brt,Chiara Moro,Via Verdi 56,Palermo,90133,IT,delivered,2026-07-20,
+BRT0044332211,brt,Davide Lanza,Via Petrarca 34,Genova,16145,IT,in_transit,2026-07-23,
+BRT0077889900,brt,Giovanna Amato,Via Mascagni 7,Bari,70122,IT,pending,2026-07-28,
+SDA5566778899,sda,Alessandro Croce,Via Pacini 12,Brescia,25121,IT,out_for_delivery,2026-07-22,
+SDA9988776655,sda,Valentina Serra,Via Tasso 5,Vicenza,36100,IT,delivered,2026-07-19,
+SDA1122334455,sda,Lorenzo Carta,Via Alfieri 19,Trento,38121,IT,pending,2026-07-26,
+TNT1234ABCD,tnt,Federico Russo,Via Plinio 44,Verona,37121,IT,in_transit,2026-07-24,
+TNT5678EFGH,tnt,Marta Belli,Via Giotto 28,Parma,43121,IT,delivered,2026-07-18,"Conferma consegna"
+TNT9012IJKL,tnt,Simone Bianco,Via Svevo 15,Livorno,57121,IT,pending,2026-07-27,Da contattare

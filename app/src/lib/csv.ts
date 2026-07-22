@@ -25,6 +25,30 @@ const COLUMN_ALIASES: Record<string, string> = {
   'note': 'notes',
 }
 
+const CARRIER_NAME_MAP: Record<string, string> = {
+  'fedex': 'fedex',
+  'dhl': 'dhl',
+  'gls': 'gls',
+  'brt': 'brt',
+  'sda': 'sda',
+  'tnt': 'tnt',
+  'bartolini': 'brt',
+  'italiana': 'sda',
+}
+
+export function detectCarrierFromHeaders(rows: string[][]): string | undefined {
+  if (rows.length < 2) return undefined
+  const headers = rows[0].map(h => h.toLowerCase().trim().replace(/\s+/g, ' '))
+  const fedExIdx = headers.indexOf('società fedex')
+  if (fedExIdx === -1) return undefined
+  const sample = rows[1][fedExIdx]?.trim().toLowerCase()
+  if (!sample) return undefined
+  for (const [key, code] of Object.entries(CARRIER_NAME_MAP)) {
+    if (sample.includes(key)) return code
+  }
+  return undefined
+}
+
 function detectDelimiter(text: string): string {
   const firstLine = text.trim().split('\n')[0]
   const commaCount = (firstLine.match(/,/g) || []).length
@@ -33,8 +57,9 @@ function detectDelimiter(text: string): string {
 }
 
 export function parseCSV(text: string): string[][] {
-  const delimiter = detectDelimiter(text)
-  const lines = text.trim().split('\n')
+  const clean = stripBOM(text)
+  const delimiter = detectDelimiter(clean)
+  const lines = clean.trim().split('\n')
   return lines.map(line => {
     const result: string[] = []
     let current = ''
@@ -54,12 +79,16 @@ export function parseCSV(text: string): string[][] {
   })
 }
 
+function stripBOM(text: string): string {
+  return text.replace(/^\uFEFF/, '')
+}
+
 function normalizeHeader(header: string): string {
-  const normalized = header.toLowerCase().trim()
+  const normalized = header.toLowerCase().trim().replace(/\s+/g, ' ')
   return COLUMN_ALIASES[normalized] ?? normalized
 }
 
-export function validateCSV(rows: string[][], carriers: Carrier[]): {
+export function validateCSV(rows: string[][], carriers: Carrier[], defaultCarrierCode?: string): {
   valid: Array<{
     tracking_number: string
     carrier_id: string
@@ -97,19 +126,20 @@ export function validateCSV(rows: string[][], carriers: Carrier[]): {
     errors.push({ row: 0, message: 'Colonna "tracking_number" mancante' })
     return { valid, errors }
   }
-  if (carrierIdx === -1) {
+  const carrierMap = new Map(carriers.map(c => [c.code.toLowerCase(), c.id]))
+  const defaultCarrierId = defaultCarrierCode ? carrierMap.get(defaultCarrierCode.toLowerCase()) : undefined
+
+  if (carrierIdx === -1 && !defaultCarrierId) {
     errors.push({ row: 0, message: 'Colonna "carrier_code" mancante' })
     return { valid, errors }
   }
-
-  const carrierMap = new Map(carriers.map(c => [c.code.toLowerCase(), c.id]))
 
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i]
     if (row.length === 0 || (row.length === 1 && row[0] === '')) continue
 
     const trackingNumber = row[trackingIdx]?.trim()
-    const carrierCode = row[carrierIdx]?.trim().toLowerCase()
+    const carrierCode = carrierIdx !== -1 ? row[carrierIdx]?.trim().toLowerCase() : defaultCarrierCode?.toLowerCase()
 
     if (!trackingNumber) {
       errors.push({ row: i + 1, message: 'Tracking number vuoto' })
@@ -120,7 +150,7 @@ export function validateCSV(rows: string[][], carriers: Carrier[]): {
       continue
     }
 
-    const carrierId = carrierMap.get(carrierCode)
+    const carrierId = carrierMap.get(carrierCode) ?? defaultCarrierId
     if (!carrierId) {
       errors.push({ row: i + 1, message: `Corriere "${carrierCode}" non trovato. Codici validi: ${[...carrierMap.keys()].join(', ')}` })
       continue

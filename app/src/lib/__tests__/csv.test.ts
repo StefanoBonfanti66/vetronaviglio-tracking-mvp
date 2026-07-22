@@ -42,6 +42,27 @@ describe('parseCSV', () => {
     const result = parseCSV('tracking_number,carrier_code')
     expect(result).toEqual([['tracking_number', 'carrier_code']])
   })
+
+  it('strips UTF-8 BOM from file start', () => {
+    const csv = '\uFEFFtracking_number,carrier_code\ntest123,fedex'
+    const result = parseCSV(csv)
+    expect(result[0]).toEqual(['tracking_number', 'carrier_code'])
+    expect(result[1][0]).toBe('test123')
+  })
+
+  it('detects tab delimiter', () => {
+    const csv = 'tracking_number\tcarrier_code\ntest123\tfedex'
+    const result = parseCSV(csv)
+    expect(result[0]).toEqual(['tracking_number', 'carrier_code'])
+    expect(result[1]).toEqual(['test123', 'fedex'])
+  })
+
+  it('handles FedEx-style Italian headers with BOM and trailing spaces', () => {
+    const csv = '\uFEFFNumero di monitoraggio,Stato ,Nome del contatto del destinatario ,Società destinataria ,Città del destinatario \n874289735740,Consegnata,Test User,Test Corp,Milano'
+    const result = parseCSV(csv)
+    expect(result[0][0]).toBe('Numero di monitoraggio')
+    expect(result[0][1]).toBe('Stato')
+  })
 })
 
 describe('validateCSV', () => {
@@ -143,6 +164,32 @@ describe('validateCSV', () => {
     const { valid, errors } = validateCSV(rows, carriers)
     expect(errors).toEqual([])
     expect(valid).toHaveLength(1)
+    expect(valid[0].carrier_id).toBe('c1')
+  })
+
+  it('maps Italian FedEx headers to internal keys via aliases', () => {
+    const rows = [
+      ['Numero di monitoraggio', 'Stato', 'Nome del contatto del destinatario', 'Società destinataria', 'Città del destinatario', 'carrier_code'],
+      ['874289735740', 'Consegnata', 'Test User', 'Test Corp', 'Milano', 'fedex'],
+    ]
+    const { valid, errors } = validateCSV(rows, carriers)
+    expect(errors).toEqual([])
+    expect(valid).toHaveLength(1)
+    expect(valid[0].tracking_number).toBe('874289735740')
+    expect(valid[0].customer_name).toBe('Test User')
+    expect(valid[0].destination).toBe('Milano')
+    expect(valid[0].carrier_id).toBe('c1')
+  })
+
+  it('uses defaultCarrierCode when carrier_code column is missing', () => {
+    const rows = [
+      ['Numero di monitoraggio', 'Stato', 'Nome del contatto del destinatario'],
+      ['874289735740', 'Consegnata', 'Test User'],
+    ]
+    const { valid, errors } = validateCSV(rows, carriers, 'fedex')
+    expect(errors).toEqual([])
+    expect(valid).toHaveLength(1)
+    expect(valid[0].tracking_number).toBe('874289735740')
     expect(valid[0].carrier_id).toBe('c1')
   })
 })

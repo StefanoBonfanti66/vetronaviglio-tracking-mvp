@@ -36,7 +36,7 @@ export default function Settings() {
     try {
       const result = await client.track(testTrackingNumber)
       setFedexStatus('success')
-      setFedexMessage(`OK - Stato: ${result.trackResult.latestStatusDetail.eventDescription}`)
+      setFedexMessage(`OK - Stato: ${result.latestStatusDetail.description}`)
     } catch (error) {
       setFedexStatus('error')
       setFedexMessage(`Errore: ${error instanceof Error ? error.message : 'Connessione fallita'}`)
