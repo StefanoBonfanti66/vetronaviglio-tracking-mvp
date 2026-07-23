@@ -1,6 +1,6 @@
-import type { CarrierTracker } from './types'
-import { FedExTracker } from './FedExTracker'
-import { DhlTracker } from './DhlTracker'
+import type { CarrierTracker } from './types.js'
+import { FedExTracker } from './FedExTracker.js'
+import { DhlTracker } from './DhlTracker.js'
 
 const trackerRegistry: Record<string, () => CarrierTracker> = {
   fedex: () => new FedExTracker(),

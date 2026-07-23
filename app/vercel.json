@@ -5,6 +5,14 @@
       "schedule": "0 6 * * *"
     }
   ],
+  "functions": {
+    "api/cron/refresh-tracking.ts": {
+      "includeFiles": "api/lib/**"
+    },
+    "api/track.ts": {
+      "includeFiles": "api/lib/**"
+    }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/" }

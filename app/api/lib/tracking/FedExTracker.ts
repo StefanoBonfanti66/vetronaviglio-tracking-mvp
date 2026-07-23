@@ -1,4 +1,4 @@
-import type { CarrierTracker, CarrierTrackResult, CarrierTrackEvent } from './types'
+import type { CarrierTracker, CarrierTrackResult, CarrierTrackEvent } from './types.js'
 
 function mapFedExStatus(code: string): string {
   const map: Record<string, string> = {
@@ -83,11 +83,6 @@ export class FedExTracker implements CarrierTracker {
     const latestStatus = result.latestStatusDetail
     const derivedCode = latestStatus?.derivedCode || latestStatus?.code || ''
     const newStatus = mapFedExStatus(derivedCode)
-
-    const location = latestStatus?.scanLocation
-    const locationStr = location
-      ? [location.city, location.stateOrProvinceCode, location.countryCode].filter(Boolean).join(', ')
-      : null
 
     const events: CarrierTrackEvent[] = (result.scanEvents || []).map((event: any) => {
       const evtLoc = event.scanLocation

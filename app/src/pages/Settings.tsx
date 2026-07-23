@@ -99,11 +99,11 @@ export default function Settings() {
 
           <div className="border-t border-slate-100 pt-4">
             <h3 className="text-sm font-medium text-slate-700 mb-2">Test connessione</h3>
-            <div className="flex gap-2 mb-2">
+            <div className="flex flex-col sm:flex-row gap-2 mb-2">
               <select
                 value={testCarrier}
                 onChange={(e) => setTestCarrier(e.target.value)}
-                className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                className="px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
               >
                 {apiCarriers.length > 0 ? (
                   apiCarriers.map(c => (
@@ -118,12 +118,12 @@ export default function Settings() {
                 placeholder="Numero di tracking di test"
                 value={testTrackingNumber}
                 onChange={(e) => setTestTrackingNumber(e.target.value)}
-                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                className="flex-1 px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
               />
               <button
                 onClick={handleTestConnection}
                 disabled={testStatus === 'testing'}
-                className="px-4 py-2 bg-brand-primary text-white text-sm font-medium rounded-lg hover:bg-brand-primary-hover disabled:opacity-50"
+                className="px-4 py-2.5 bg-brand-primary text-white text-sm font-medium rounded-lg hover:bg-brand-primary-hover disabled:opacity-50 min-h-[44px]"
               >
                 {testStatus === 'testing' ? 'Test in corso...' : 'Testa'}
               </button>

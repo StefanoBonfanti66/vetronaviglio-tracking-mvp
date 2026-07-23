@@ -43,56 +43,56 @@ function PaginationBar({
   }
 
   return (
-    <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-3">
-      <div className="flex items-center gap-2 text-xs text-slate-500">
-        <span>{startItem}–{endItem} di {totalCount}</span>
-        <span className="text-slate-300">|</span>
-        <span>Righe:</span>
-        <select
-          value={pageSize}
-          onChange={(e) => onPageSizeChange(Number(e.target.value))}
-          className="border border-slate-200 rounded text-xs px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-        >
-          {PAGE_SIZES.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-      </div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-3 gap-3">
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <span>{startItem}–{endItem} di {totalCount}</span>
+          <span className="hidden sm:inline text-slate-300">|</span>
+          <span className="hidden sm:inline">Righe:</span>
+          <select
+            value={pageSize}
+            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+            className="border border-slate-200 rounded text-xs px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+          >
+            {PAGE_SIZES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
 
-      <div className="flex items-center gap-1">
-        <button
-          onClick={() => onPageChange(page - 1)}
-          disabled={page <= 1}
-          className="px-2.5 py-1 text-xs font-medium rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          ‹ Prev
-        </button>
-        {pages.map((p, i) =>
-          p === 'ellipsis' ? (
-            <span key={`e-${i}`} className="px-1 text-xs text-slate-400">...</span>
-          ) : (
-            <button
-              key={p}
-              onClick={() => onPageChange(p)}
-              className={`px-2.5 py-1 text-xs font-medium rounded border transition-colors ${
-                p === page
-                  ? 'bg-brand-primary text-white border-brand-primary'
-                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              {p}
-            </button>
-          )
-        )}
-        <button
-          onClick={() => onPageChange(page + 1)}
-          disabled={page >= totalPages}
-          className="px-2.5 py-1 text-xs font-medium rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          Next ›
-        </button>
+        <div className="flex items-center gap-1 flex-wrap">
+          <button
+            onClick={() => onPageChange(page - 1)}
+            disabled={page <= 1}
+            className="min-w-[44px] min-h-[44px] text-xs font-medium rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            ‹
+          </button>
+          {pages.map((p, i) =>
+            p === 'ellipsis' ? (
+              <span key={`e-${i}`} className="min-w-[28px] text-center text-xs text-slate-400">...</span>
+            ) : (
+              <button
+                key={p}
+                onClick={() => onPageChange(p)}
+                className={`min-w-[44px] min-h-[44px] text-xs font-medium rounded border transition-colors ${
+                  p === page
+                    ? 'bg-brand-primary text-white border-brand-primary'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                {p}
+              </button>
+            )
+          )}
+          <button
+            onClick={() => onPageChange(page + 1)}
+            disabled={page >= totalPages}
+            className="min-w-[44px] min-h-[44px] text-xs font-medium rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            ›
+          </button>
+        </div>
       </div>
-    </div>
   )
 }
 
@@ -260,25 +260,35 @@ export default function Shipments() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Spedizioni</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap justify-end">
           <button
             onClick={() => setImportOpen(true)}
-            className="border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+            className="inline-flex items-center gap-1.5 border border-slate-200 text-slate-700 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
           >
-            Importa CSV
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            <span className="hidden sm:inline">Importa CSV</span>
           </button>
           <button
             onClick={handleExport}
             disabled={shipments.length === 0}
-            className="border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 border border-slate-200 text-slate-700 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
-            Esporta CSV
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span className="hidden sm:inline">Esporta CSV</span>
           </button>
           <Link
             to="/shipments/new"
-            className="bg-brand-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-primary-hover transition-colors"
+            className="inline-flex items-center gap-1.5 bg-brand-primary text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-primary-hover transition-colors"
           >
-            + Nuova spedizione
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span className="hidden sm:inline">Nuova</span>
+            <span>spedizione</span>
           </Link>
         </div>
       </div>
@@ -290,7 +300,7 @@ export default function Shipments() {
           placeholder="Cerca per tracking, cliente, riferimento..."
           value={search}
           onChange={(e) => handleFilterChange(setSearch, e.target.value)}
-          className="flex-1 min-w-[200px] border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
+          className="flex-1 min-w-[140px] sm:min-w-[200px] border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
         />
         <select
           value={statusFilter}
@@ -328,7 +338,7 @@ export default function Shipments() {
         />
       </div>
 
-      {/* Table */}
+      {/* Shipments */}
       {loading ? (
         <div className="flex items-center justify-center h-48">
           <div className="text-slate-400">Caricamento...</div>
@@ -342,56 +352,86 @@ export default function Shipments() {
           <p className="text-slate-400">Nessuna spedizione trovata</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th onClick={() => handleSort('tracking_number')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none">
-                  Tracking <SortIcon field="tracking_number" />
-                </th>
-                <th onClick={() => handleSort('carrier')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none">
-                  Corriere <SortIcon field="carrier" />
-                </th>
-                <th onClick={() => handleSort('status')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none">
-                  Stato <SortIcon field="status" />
-                </th>
-                <th onClick={() => handleSort('customer_name')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none">
-                  Cliente <SortIcon field="customer_name" />
-                </th>
-                <th onClick={() => handleSort('destination')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none">
-                  Destinazione <SortIcon field="destination" />
-                </th>
-                <th onClick={() => handleSort('last_update')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none">
-                  Ultimo aggiornamento <SortIcon field="last_update" />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {shipments.map((shipment) => (
-                <tr key={shipment.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <Link
-                      to={`/shipments/${shipment.id}`}
-                      className="text-sm font-mono text-brand-primary hover:text-brand-primary-hover hover:underline"
-                    >
-                      {shipment.tracking_number}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-slate-600">{shipment.carrier?.name ?? '—'}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[shipment.status]}`}>
-                      {STATUS_LABELS[shipment.status]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-slate-600">{shipment.customer_name ?? '—'}</td>
-                  <td className="px-4 py-3 text-sm text-slate-600">{shipment.destination ?? '—'}</td>
-                  <td className="px-4 py-3 text-sm text-slate-500">
-                    {shipment.last_update ? new Date(shipment.last_update).toLocaleString('it-IT') : '—'}
-                  </td>
+        <>
+          {/* Mobile card list */}
+          <div className="lg:hidden space-y-3 mb-4">
+            {shipments.map((shipment) => (
+              <Link
+                key={shipment.id}
+                to={`/shipments/${shipment.id}`}
+                className="block bg-white rounded-xl border border-slate-200 p-4 hover:shadow-sm transition-shadow"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-mono font-medium text-brand-primary">{shipment.tracking_number}</span>
+                  <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[shipment.status]}`}>
+                    {STATUS_LABELS[shipment.status]}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500 flex-wrap">
+                  <span>{shipment.carrier?.name ?? '—'}</span>
+                  {shipment.customer_name && <><span>·</span><span>{shipment.customer_name}</span></>}
+                  {shipment.destination && <><span>·</span><span>{shipment.destination}</span></>}
+                </div>
+                <div className="mt-1.5 text-[10px] text-slate-400">
+                  {shipment.last_update ? new Date(shipment.last_update).toLocaleString('it-IT') : ''}
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden lg:block bg-white rounded-xl border border-slate-200 overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th onClick={() => handleSort('tracking_number')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none whitespace-nowrap">
+                    Tracking <SortIcon field="tracking_number" />
+                  </th>
+                  <th onClick={() => handleSort('carrier')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none whitespace-nowrap">
+                    Corriere <SortIcon field="carrier" />
+                  </th>
+                  <th onClick={() => handleSort('status')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none whitespace-nowrap">
+                    Stato <SortIcon field="status" />
+                  </th>
+                  <th onClick={() => handleSort('customer_name')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none whitespace-nowrap">
+                    Cliente <SortIcon field="customer_name" />
+                  </th>
+                  <th onClick={() => handleSort('destination')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none whitespace-nowrap">
+                    Destinazione <SortIcon field="destination" />
+                  </th>
+                  <th onClick={() => handleSort('last_update')} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:text-slate-700 select-none whitespace-nowrap">
+                    Ultimo aggiornamento <SortIcon field="last_update" />
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {shipments.map((shipment) => (
+                  <tr key={shipment.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                    <td className="px-4 py-3">
+                      <Link
+                        to={`/shipments/${shipment.id}`}
+                        className="text-sm font-mono text-brand-primary hover:text-brand-primary-hover hover:underline"
+                      >
+                        {shipment.tracking_number}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate-600">{shipment.carrier?.name ?? '—'}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[shipment.status]}`}>
+                        {STATUS_LABELS[shipment.status]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate-600">{shipment.customer_name ?? '—'}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600">{shipment.destination ?? '—'}</td>
+                    <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap">
+                      {shipment.last_update ? new Date(shipment.last_update).toLocaleString('it-IT') : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
           <PaginationBar
             page={page}
             totalPages={totalPages}
@@ -403,7 +443,7 @@ export default function Shipments() {
               setPage(1)
             }}
           />
-        </div>
+        </>
       )}
 
       {/* Import Modal */}
