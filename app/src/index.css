@@ -27,3 +27,31 @@ body {
     background: white;
   }
 }
+
+@keyframes timeline-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes timeline-pulse-dot {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(9, 119, 180, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(9, 119, 180, 0);
+  }
+}
+
+.timeline-item {
+  animation: timeline-slide-in 0.4s ease-out both;
+}
+
+.timeline-dot-latest {
+  animation: timeline-pulse-dot 2s ease-in-out infinite;
+}
