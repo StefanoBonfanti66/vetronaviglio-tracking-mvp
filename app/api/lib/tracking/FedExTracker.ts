@@ -84,11 +84,6 @@ export class FedExTracker implements CarrierTracker {
     const derivedCode = latestStatus?.derivedCode || latestStatus?.code || ''
     const newStatus = mapFedExStatus(derivedCode)
 
-    const location = latestStatus?.scanLocation
-    const locationStr = location
-      ? [location.city, location.stateOrProvinceCode, location.countryCode].filter(Boolean).join(', ')
-      : null
-
     const events: CarrierTrackEvent[] = (result.scanEvents || []).map((event: any) => {
       const evtLoc = event.scanLocation
       const evtLocStr = evtLoc
