@@ -64,26 +64,32 @@ export default function ShipmentDetail() {
         ← Torna alle spedizioni
       </Link>
 
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-2xl font-bold text-slate-800 font-mono">{shipment.tracking_number}</h1>
-          <p className="text-sm text-slate-500 mt-1">{shipment.carrier?.name ?? 'Corriere sconosciuto'}</p>
-        </div>
-        <div className="flex items-center gap-3">
           <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${STATUS_COLORS[shipment.status]}`}>
             {STATUS_LABELS[shipment.status]}
           </span>
+          <p className="text-sm text-slate-500 w-full sm:w-auto">{shipment.carrier?.name ?? 'Corriere sconosciuto'}</p>
+        </div>
+        <div className="flex items-center gap-2">
           <button
             onClick={() => window.print()}
-            className="no-print border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+            className="no-print inline-flex items-center gap-1.5 border border-slate-200 text-slate-700 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
           >
-            Stampa PDF
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+            </svg>
+            <span className="hidden sm:inline">Stampa PDF</span>
           </button>
           <button
             onClick={() => navigate(`/shipments/${id}/edit`)}
-            className="no-print border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+            className="no-print inline-flex items-center gap-1.5 border border-slate-200 text-slate-700 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
           >
-            Modifica
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+            </svg>
+            <span className="hidden sm:inline">Modifica</span>
           </button>
         </div>
       </div>

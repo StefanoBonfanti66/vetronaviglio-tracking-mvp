@@ -29,37 +29,61 @@ function Icon({ name }: { name: string }) {
   return icons[name] ?? null
 }
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
-    <aside className="w-64 bg-slate-900 text-white flex flex-col">
-      <div className="px-6 py-5 border-b border-white/10">
-        <img src="/logo.svg" alt="Vetronaviglio" className="h-7 w-auto brightness-0 invert" />
-        <p className="text-xs text-slate-400 mt-1">Tracking Dashboard</p>
-      </div>
-
-      <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.to === '/'}
-              className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-brand-primary-dark/80 text-white'
-                  : 'text-slate-300 hover:bg-white/10 hover:text-white'
-              }`
-            }
+    <>
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside
+        className={`fixed md:relative inset-y-0 left-0 z-40 w-64 bg-slate-900 text-white flex flex-col transition-transform duration-300 ease-in-out ${
+          open ? 'translate-x-0' : '-translate-x-full'
+        } md:translate-x-0`}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <img src="/logo.svg" alt="Vetronaviglio" className="h-7 w-auto brightness-0 invert" />
+            <p className="text-xs text-slate-400">Tracking Dashboard</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="md:hidden p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label="Chiudi menu"
           >
-            <Icon name={item.icon} />
-            {item.label}
-          </NavLink>
-        ))}
-      </nav>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-      <div className="p-4 border-t border-slate-700">
-        <p className="text-xs text-slate-500">Vetronaviglio Tracking MVP v0.1.0</p>
-      </div>
-    </aside>
+        <nav className="flex-1 p-4 space-y-1">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === '/'}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-brand-primary-dark/80 text-white'
+                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                }`
+              }
+            >
+              <Icon name={item.icon} />
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="p-4 border-t border-slate-700">
+          <p className="text-xs text-slate-500">Vetronaviglio Tracking MVP v0.1.0</p>
+        </div>
+      </aside>
+    </>
   )
 }
