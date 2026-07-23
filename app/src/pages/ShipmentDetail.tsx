@@ -3,28 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { getShipmentById, getTrackingEvents } from '../lib/shipments'
 import { STATUS_LABELS, STATUS_COLORS } from '../types/tracking'
 import type { Shipment, TrackingEvent } from '../types/tracking'
-
-function TimelineItem({ event, isLast }: { event: TrackingEvent; isLast: boolean }) {
-  return (
-    <div className="flex gap-4">
-      <div className="flex flex-col items-center">
-        <div className="w-3 h-3 rounded-full bg-brand-primary border-2 border-white shadow" />
-        {!isLast && <div className="w-0.5 flex-1 bg-slate-200 mt-1" />}
-      </div>
-      <div className={`pb-6 ${isLast ? '' : ''}`}>
-        <p className="text-sm font-medium text-slate-700">{event.description ?? event.status}</p>
-        <div className="flex items-center gap-3 mt-1">
-          {event.location && (
-            <span className="text-xs text-slate-500">📍 {event.location}</span>
-          )}
-          <span className="text-xs text-slate-400">
-            {new Date(event.event_timestamp).toLocaleString('it-IT')}
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
+import TrackingTimeline from '../components/TrackingTimeline'
 
 export default function ShipmentDetail() {
   const { id } = useParams<{ id: string }>()
@@ -165,19 +144,7 @@ export default function ShipmentDetail() {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h2 className="text-lg font-semibold text-slate-700 mb-4">Cronologia eventi</h2>
-            {events.length === 0 ? (
-              <p className="text-slate-400 text-sm">Nessun evento di tracking registrato.</p>
-            ) : (
-              <div className="pl-1">
-                {events.map((event, index) => (
-                  <TimelineItem
-                    key={event.id}
-                    event={event}
-                    isLast={index === events.length - 1}
-                  />
-                ))}
-              </div>
-            )}
+            <TrackingTimeline events={events} />
           </div>
         </div>
       </div>
