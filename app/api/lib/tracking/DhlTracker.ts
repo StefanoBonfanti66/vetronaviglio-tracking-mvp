@@ -1,4 +1,4 @@
-import type { CarrierTracker, CarrierTrackResult, CarrierTrackEvent } from './types'
+import type { CarrierTracker, CarrierTrackResult, CarrierTrackEvent } from './types.js'
 
 function mapDhlStatus(statusCode: string): string {
   const map: Record<string, string> = {

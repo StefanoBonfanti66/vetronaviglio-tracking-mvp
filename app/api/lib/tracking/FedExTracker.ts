@@ -1,4 +1,4 @@
-import type { CarrierTracker, CarrierTrackResult, CarrierTrackEvent } from './types'
+import type { CarrierTracker, CarrierTrackResult, CarrierTrackEvent } from './types.js'
 
 function mapFedExStatus(code: string): string {
   const map: Record<string, string> = {
