@@ -77,7 +77,7 @@ export default function TrackingTimeline({ events }: { events: TrackingEvent[] }
               >
                 <span className="text-[10px] leading-none text-white">{icon}</span>
               </div>
-              {!isLatest && (
+              {index < events.length - 1 && (
                 <div className={`w-0.5 flex-1 ${lineColor} mt-1`} />
               )}
             </div>
