@@ -23,8 +23,9 @@
 - **M7 — Multi-carrier refactor:** `CarrierTracker` interface, factory, `FedExTracker`, `DhlTracker`, unified `/api/track` endpoint, cron dispatches per carrier, UI generica Settings
 
 ### Stato attuale
-- Branch `develop` — working tree pulito
-- Produzione live, 61 spedizioni tracciate, 36/36 test passati
+- **Git workflow:** `develop` → preview deploy Vercel, `main` → produzione
+- Git integration Vercel attiva, repo `StefanoBonfanti66/vetronaviglio-tracking-mvp`
+- 61 spedizioni tracciate, 36/36 test passati
 - Architettura multi-carrier pronta: FedEx (attivo) + DHL (placeholder, richiede `DHL_API_KEY`)
 - Vecchi endpoint `/api/fedex/*` rimossi — usare `/api/track`
 
