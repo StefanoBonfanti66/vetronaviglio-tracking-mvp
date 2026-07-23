@@ -138,6 +138,28 @@
 - `app/api/cron/refresh-tracking.ts` — Cron job
 - `app/vercel.json` — Cron config + route
 
+### M6 — Server-side pagination + sort (2026-07-23)
+- `app/src/lib/shipments.ts` — `getShipments` ora accetta `sort_field`/`sort_dir`, ordina lato server via Supabase (incluso sort su `carrier.name` via foreign table)
+- `app/src/pages/Shipments.tsx` — riscritta: paginazione server-side con `PaginationBar` a fondo tabella, 3 page size (20/50/100), sort colonne lato server, filtri resettano a page 1
+- **36/36 test passati** ✅ typecheck ✅ build (894KB JS, 20KB CSS)
+
+### M7 — Multi-carrier (CarrierTracker interface + DHL) (2026-07-23)
+- **Architettura carrier astratta:**
+  - `app/api/lib/tracking/types.ts` — `CarrierTracker` interface + `CarrierTrackResult`/`CarrierTrackEvent` tipi normalizzati
+  - `app/api/lib/tracking/index.ts` — factory `getTracker(code)` + registry per codice carrier
+  - `app/api/lib/tracking/FedExTracker.ts` — FedEx implementazione (OAuth2 + track via FedEx Track API)
+  - `app/api/lib/tracking/DhlTracker.ts` — DHL implementazione (API key + DHL Track API)
+- **Unified track endpoint:** `app/api/track.ts` → `POST /api/track` con `{ carrier, trackingNumber }`, dispaccia via factory
+- **Cron refactored:** `app/api/cron/refresh-tracking.ts` ora itera TUTTI i carrier con `api_available=true`, chiama il tracker corrispondente, report per-carrier
+- **Browser helper:** `app/src/lib/tracking/` — `trackShipment()` client, `statusMaps.ts` (FedEx + DHL), types duplicati per sicurezza bundle
+- **Settings aggiornata:** test connessione dinamico (select carrier via dropdown), mostra DHL API Key status
+- **Dashboard aggiornata:** refresh report ora mostra per-carrier (es. `fedex: 2 aggiornati — dhl: 0 aggiornati`)
+- **Vecchi file rimossi:** `app/src/lib/fedex.ts`, `app/api/fedex/token.ts`, `app/api/fedex/track.ts`, `app/src/types/fedex.ts`
+- **36/36 test passati** ✅ typecheck ✅ build (895KB JS, 20KB CSS)
+- **Note:** DHL richiede env var `DHL_API_KEY` (server) e `VITE_DHL_API_KEY` (browser) per funzionare
+
 ## Prossimo step suggerito
+- Configurare DHL API key su Vercel (env `DHL_API_KEY`)
 - Emettere FATT-002 (post-M2, €2.040)
 - Raccogliere feedback cliente su app production
+- Auth/login page (protezione reale dati)

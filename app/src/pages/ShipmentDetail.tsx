@@ -81,7 +81,7 @@ export default function ShipmentDetail() {
 
   return (
     <div>
-      <Link to="/shipments" className="text-sm text-brand-primary hover:text-brand-primary-hover mb-4 inline-block">
+      <Link to="/shipments" className="no-print text-sm text-brand-primary hover:text-brand-primary-hover mb-4 inline-block">
         ← Torna alle spedizioni
       </Link>
 
@@ -95,8 +95,14 @@ export default function ShipmentDetail() {
             {STATUS_LABELS[shipment.status]}
           </span>
           <button
+            onClick={() => window.print()}
+            className="no-print border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+          >
+            Stampa PDF
+          </button>
+          <button
             onClick={() => navigate(`/shipments/${id}/edit`)}
-            className="border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+            className="no-print border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
           >
             Modifica
           </button>

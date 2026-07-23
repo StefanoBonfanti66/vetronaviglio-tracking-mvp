@@ -1,5 +1,8 @@
 node_modules/
 dist/
+app/dist/
 .env
 *.local
 .vercel/
+.playwright-mcp/
+supabase/.temp/

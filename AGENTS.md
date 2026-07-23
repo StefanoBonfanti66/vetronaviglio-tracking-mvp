@@ -12,30 +12,24 @@
 - Use `PROJECT_AI_NOTES.md` to track decisions, checkpoints, and pending items across sessions.
 - If you use custom commands in your OpenCode setup, document project-specific ones here or in the repository docs.
 
-## Current Focus — 2026-07-22
+## Current Focus — 2026-07-23
 
 ### Completato
 - Bootstrap progetto da template `triathlon-starter`
-- **M1:** Schema Supabase, types, lib query, layout, pagine base
-- **M2:** FedEx API client (OAuth2, track), settings page
-- **M3:** Dashboard avanzata (grafici pie/bar, timeline, form, filtri)
-- **M4:** Gestione manuale/CSV spedizioni (ordinamento, modifica/elimina, import/export)
-- **M5:** Testing completato — 36 test Vitest, typecheck, build OK
-- **Rebranding:** Logo, favicon, colori brand (#0977b4, #35bfae, #162a37), font Segoe UI
-- **Deploy Vercel:** Production live su `app-blond-omega-14.vercel.app`
-- **Supabase:** Project `vetronaviglio-tracking` creato, schema applicato, carriers seeded
-- **CSV fix:** Delimiter detection (tab/comma), alias intestazioni italiane FedEx, BOM stripping, carrier_code opzionale con auto-detect
-- **FedEx API proxy:** Serverless routes `/api/fedex/token` + `/api/fedex/track` (CORS fix)
-- **FedEx production:** Credenziali production configurate su Vercel (61 spedizioni tracciate con successo)
-- **Cron job:** `/api/cron/refresh-tracking` — aggiornamento automatico tracking (daily 06:00 UTC) + pulsante manuale su Dashboard
-- **Env vars:** Tutte le env vars configurate su Vercel (Supabase, FedEx prod, CRON_SECRET)
-- README.md aggiornato per Vetronaviglio Tracking MVP
+- **M1-M5:** Schema Supabase, FedEx API, Dashboard, CSV, Testing (36 test) — go-live produzione
+- **Rebranding + Deploy Vercel:** Production live su `app-blond-omega-14.vercel.app`
+- **FedEx production:** 61 spedizioni tracciate, cron job daily 06:00 UTC
+- **M6 — Server-side pagination:** Paginazione server-side (20/50/100), sort colonne via Supabase, `PaginationBar` UI
+- **M7 — Multi-carrier refactor:** `CarrierTracker` interface, factory, `FedExTracker`, `DhlTracker`, unified `/api/track` endpoint, cron dispatches per carrier, UI generica Settings
 
-### In corso
-- Branch `develop` (tracking `origin/main`)
-- 15 file modificati uncommitted (csv fix, fedex proxy, cron job, rebranding, deps)
+### Stato attuale
+- Branch `develop` — working tree pulito
+- Produzione live, 61 spedizioni tracciate, 36/36 test passati
+- Architettura multi-carrier pronta: FedEx (attivo) + DHL (placeholder, richiede `DHL_API_KEY`)
+- Vecchi endpoint `/api/fedex/*` rimossi — usare `/api/track`
 
 ### Prossimo step
-- Commit delle modifiche uncommitted (csv fix, fedex proxy, cron job, rebranding)
-- Commit di test-spedizioni.csv e app/.gitignore
-- Aggiornare PROJECT_AI_NOTES.md con stato finale
+- Configurare DHL API key su Vercel per abilitare secondo carrier
+- Emettere FATT-002 (post-M2, €2.040)
+- Auth/login page
+- Raccogliere feedback cliente

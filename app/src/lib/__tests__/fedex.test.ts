@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mapFedExStatus } from '../fedex'
+import { mapFedExStatus } from '../tracking/statusMaps'
 
 describe('mapFedExStatus', () => {
   it('maps OC to pending', () => {

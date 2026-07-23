@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getDashboardStats, getShipments } from '../lib/shipments'
+import { getDashboardStats, getShipments, getCarrierStats } from '../lib/shipments'
 import { STATUS_LABELS, STATUS_COLORS } from '../types/tracking'
 import type { DashboardStats, Shipment } from '../types/tracking'
 import StatusPieChart from '../components/charts/StatusPieChart'
@@ -31,20 +31,12 @@ export default function Dashboard() {
     Promise.all([
       getDashboardStats(),
       getShipments({ limit: 5 }),
+      getCarrierStats(),
     ])
-      .then(([statsData, shipmentsData]) => {
+      .then(([statsData, shipmentsData, carrierData]) => {
         setStats(statsData)
         setRecentShipments(shipmentsData.data)
-
-        // Calcola stats per corriere
-        const carrierMap = new Map<string, number>()
-        shipmentsData.data.forEach((s) => {
-          const name = s.carrier?.name ?? 'Sconosciuto'
-          carrierMap.set(name, (carrierMap.get(name) ?? 0) + 1)
-        })
-        setCarrierStats(
-          Array.from(carrierMap.entries()).map(([name, count]) => ({ name, count }))
-        )
+        setCarrierStats(carrierData)
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -59,15 +51,22 @@ export default function Dashboard() {
       if (!res.ok) {
         setRefreshResult(`Errore: ${data.error}`)
       } else {
-        const r = data.results
-        setRefreshResult(`${r.updated} aggiornati, ${r.unchanged} invariati, ${r.errors} errori (${data.duration_ms}ms)`)
+        const lines: string[] = []
+        if (data.carriers) {
+          for (const [code, r] of Object.entries(data.carriers) as [string, { updated: number; unchanged: number; errors: number }][]) {
+            lines.push(`${code}: ${r.updated} aggiornati, ${r.unchanged} invariati, ${r.errors} errori`)
+          }
+        }
+        setRefreshResult(`${lines.join(' — ')} (${data.duration_ms}ms)`)
         // Reload data after refresh
-        const [statsData, shipmentsData] = await Promise.all([
+        const [statsData, shipmentsData, carrierData] = await Promise.all([
           getDashboardStats(),
           getShipments({ limit: 5 }),
+          getCarrierStats(),
         ])
         setStats(statsData)
         setRecentShipments(shipmentsData.data)
+        setCarrierStats(carrierData)
       }
     } catch (err) {
       setRefreshResult(`Errore di connessione: ${err instanceof Error ? err.message : 'sconosciuto'}`)

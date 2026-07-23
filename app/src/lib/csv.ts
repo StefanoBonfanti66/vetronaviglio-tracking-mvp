@@ -196,6 +196,10 @@ export function shipmentsToCSV(shipments: Shipment[]): string {
   return rows.join('\n')
 }
 
+export function generateCSVTemplate(): string {
+  return CSV_HEADERS.join(',')
+}
+
 export function downloadCSV(content: string, filename: string) {
   const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)

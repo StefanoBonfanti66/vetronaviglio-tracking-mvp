@@ -14,3 +14,16 @@ body {
   background-color: #f5f7fa;
   color: #1e293b;
 }
+
+@media print {
+  nav, aside, .no-print {
+    display: none !important;
+  }
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body {
+    background: white;
+  }
+}

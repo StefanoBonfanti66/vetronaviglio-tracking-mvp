@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { getCarriers } from '../lib/shipments'
-import { getFedExClient } from '../lib/fedex'
+import { trackShipment } from '../lib/tracking'
 import type { Carrier } from '../types/tracking'
 
 export default function Settings() {
   const [carriers, setCarriers] = useState<Carrier[]>([])
   const [loading, setLoading] = useState(true)
-  const [fedexStatus, setFedexStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
-  const [fedexMessage, setFedexMessage] = useState('')
+  const [testCarrier, setTestCarrier] = useState('fedex')
+  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
+  const [testMessage, setTestMessage] = useState('')
   const [testTrackingNumber, setTestTrackingNumber] = useState('')
 
   useEffect(() => {
@@ -16,32 +17,27 @@ export default function Settings() {
       .finally(() => setLoading(false))
   }, [])
 
-  const handleTestFedEx = async () => {
-    const client = getFedExClient()
-    if (!client) {
-      setFedexStatus('error')
-      setFedexMessage('Variabili d\'ambiente FedEx non configurate')
-      return
-    }
-
+  const handleTestConnection = async () => {
     if (!testTrackingNumber) {
-      setFedexStatus('error')
-      setFedexMessage('Inserisci un numero di tracking per il test')
+      setTestStatus('error')
+      setTestMessage('Inserisci un numero di tracking per il test')
       return
     }
 
-    setFedexStatus('testing')
-    setFedexMessage('Test connessione in corso...')
+    setTestStatus('testing')
+    setTestMessage('Test connessione in corso...')
 
     try {
-      const result = await client.track(testTrackingNumber)
-      setFedexStatus('success')
-      setFedexMessage(`OK - Stato: ${result.latestStatusDetail.description}`)
+      const result = await trackShipment(testCarrier, testTrackingNumber)
+      setTestStatus('success')
+      setTestMessage(`OK - Stato: ${result.status_description || result.status}`)
     } catch (error) {
-      setFedexStatus('error')
-      setFedexMessage(`Errore: ${error instanceof Error ? error.message : 'Connessione fallita'}`)
+      setTestStatus('error')
+      setTestMessage(`Errore: ${error instanceof Error ? error.message : 'Connessione fallita'}`)
     }
   }
+
+  const apiCarriers = carriers.filter(c => c.api_available)
 
   return (
     <div>
@@ -79,31 +75,44 @@ export default function Settings() {
       </div>
 
       <div className="mt-6 bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-700 mb-4">Configurazione FedEx API</h2>
-        
+        <h2 className="text-lg font-semibold text-slate-700 mb-4">Configurazione API</h2>
+
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-slate-500">Ambiente:</p>
+              <p className="text-slate-500">FedEx Environment:</p>
               <p className="font-medium">{import.meta.env.VITE_FEDEX_ENVIRONMENT || 'Non configurato'}</p>
             </div>
             <div>
-              <p className="text-slate-500">Endpoint:</p>
+              <p className="text-slate-500">FedEx Endpoint:</p>
               <p className="font-medium text-xs break-all">{import.meta.env.VITE_FEDEX_BASE_URL || 'Non configurato'}</p>
             </div>
             <div>
-              <p className="text-slate-500">API Key:</p>
+              <p className="text-slate-500">FedEx API Key:</p>
               <p className="font-medium">{import.meta.env.VITE_FEDEX_API_KEY ? '••••••••' : 'Non configurato'}</p>
             </div>
             <div>
-              <p className="text-slate-500">Codice cliente:</p>
-              <p className="font-medium">{import.meta.env.VITE_FEDEX_CUSTOMER_CODE || 'Non configurato'}</p>
+              <p className="text-slate-500">DHL API Key:</p>
+              <p className="font-medium">{import.meta.env.VITE_DHL_API_KEY ? '••••••••' : 'Non configurato'}</p>
             </div>
           </div>
 
           <div className="border-t border-slate-100 pt-4">
             <h3 className="text-sm font-medium text-slate-700 mb-2">Test connessione</h3>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-2">
+              <select
+                value={testCarrier}
+                onChange={(e) => setTestCarrier(e.target.value)}
+                className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+              >
+                {apiCarriers.length > 0 ? (
+                  apiCarriers.map(c => (
+                    <option key={c.code} value={c.code}>{c.name}</option>
+                  ))
+                ) : (
+                  <option value="fedex">FedEx</option>
+                )}
+              </select>
               <input
                 type="text"
                 placeholder="Numero di tracking di test"
@@ -112,23 +121,23 @@ export default function Settings() {
                 className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
               />
               <button
-                onClick={handleTestFedEx}
-                disabled={fedexStatus === 'testing'}
+                onClick={handleTestConnection}
+                disabled={testStatus === 'testing'}
                 className="px-4 py-2 bg-brand-primary text-white text-sm font-medium rounded-lg hover:bg-brand-primary-hover disabled:opacity-50"
               >
-                {fedexStatus === 'testing' ? 'Test in corso...' : 'Testa connessione'}
+                {testStatus === 'testing' ? 'Test in corso...' : 'Testa'}
               </button>
             </div>
 
-            {fedexMessage && (
-              <div className={`mt-2 p-2 rounded text-sm ${
-                fedexStatus === 'success' 
-                  ? 'bg-emerald-50 text-emerald-700' 
-                  : fedexStatus === 'error'
+            {testMessage && (
+              <div className={`p-2 rounded text-sm ${
+                testStatus === 'success'
+                  ? 'bg-emerald-50 text-emerald-700'
+                  : testStatus === 'error'
                   ? 'bg-red-50 text-red-700'
                   : 'bg-brand-primary/10 text-brand-primary'
               }`}>
-                {fedexMessage}
+                {testMessage}
               </div>
             )}
           </div>

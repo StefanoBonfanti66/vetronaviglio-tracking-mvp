@@ -1,12 +1,100 @@
 import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getShipments, getCarriers, createShipmentsBulk } from '../lib/shipments'
-import { parseCSV, validateCSV, shipmentsToCSV, downloadCSV, detectCarrierFromHeaders } from '../lib/csv'
+import { parseCSV, validateCSV, shipmentsToCSV, downloadCSV, generateCSVTemplate, detectCarrierFromHeaders } from '../lib/csv'
 import { STATUS_LABELS, STATUS_COLORS } from '../types/tracking'
 import type { Shipment, ShipmentStatus, Carrier } from '../types/tracking'
 
 type SortField = 'tracking_number' | 'carrier' | 'status' | 'customer_name' | 'destination' | 'last_update'
 type SortDir = 'asc' | 'desc'
+
+const PAGE_SIZES = [20, 50, 100]
+const MAX_VISIBLE_PAGES = 7
+
+function PaginationBar({
+  page,
+  totalPages,
+  pageSize,
+  totalCount,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  page: number
+  totalPages: number
+  pageSize: number
+  totalCount: number
+  onPageChange: (page: number) => void
+  onPageSizeChange: (size: number) => void
+}) {
+  const startItem = (page - 1) * pageSize + 1
+  const endItem = Math.min(page * pageSize, totalCount)
+
+  const pages: (number | 'ellipsis')[] = []
+  if (totalPages <= MAX_VISIBLE_PAGES) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i)
+  } else {
+    pages.push(1)
+    if (page > 3) pages.push('ellipsis')
+    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) {
+      pages.push(i)
+    }
+    if (page < totalPages - 2) pages.push('ellipsis')
+    pages.push(totalPages)
+  }
+
+  return (
+    <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-3">
+      <div className="flex items-center gap-2 text-xs text-slate-500">
+        <span>{startItem}–{endItem} di {totalCount}</span>
+        <span className="text-slate-300">|</span>
+        <span>Righe:</span>
+        <select
+          value={pageSize}
+          onChange={(e) => onPageSizeChange(Number(e.target.value))}
+          className="border border-slate-200 rounded text-xs px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+        >
+          {PAGE_SIZES.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => onPageChange(page - 1)}
+          disabled={page <= 1}
+          className="px-2.5 py-1 text-xs font-medium rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          ‹ Prev
+        </button>
+        {pages.map((p, i) =>
+          p === 'ellipsis' ? (
+            <span key={`e-${i}`} className="px-1 text-xs text-slate-400">...</span>
+          ) : (
+            <button
+              key={p}
+              onClick={() => onPageChange(p)}
+              className={`px-2.5 py-1 text-xs font-medium rounded border transition-colors ${
+                p === page
+                  ? 'bg-brand-primary text-white border-brand-primary'
+                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              {p}
+            </button>
+          )
+        )}
+        <button
+          onClick={() => onPageChange(page + 1)}
+          disabled={page >= totalPages}
+          className="px-2.5 py-1 text-xs font-medium rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Next ›
+        </button>
+      </div>
+    </div>
+  )
+}
 
 export default function Shipments() {
   const [shipments, setShipments] = useState<Shipment[]>([])
@@ -17,8 +105,12 @@ export default function Shipments() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<ShipmentStatus | ''>('')
   const [carrierFilter, setCarrierFilter] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [sortField, setSortField] = useState<SortField>('last_update')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
 
   const [importOpen, setImportOpen] = useState(false)
   const [importPreview, setImportPreview] = useState<Array<{ tracking_number: string; carrier_id: string; customer_name?: string }>>([])
@@ -35,11 +127,17 @@ export default function Shipments() {
 
   useEffect(() => {
     setLoading(true)
+    const offset = (page - 1) * pageSize
     getShipments({
       search: search || undefined,
       status: (statusFilter as ShipmentStatus) || undefined,
       carrier_id: carrierFilter || undefined,
-      limit: 200,
+      date_from: dateFrom || undefined,
+      date_to: dateTo || undefined,
+      sort_field: sortField,
+      sort_dir: sortDir,
+      limit: pageSize,
+      offset,
     })
       .then(({ data, count }) => {
         setShipments(data)
@@ -47,40 +145,22 @@ export default function Shipments() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [search, statusFilter, carrierFilter])
-
-  const sorted = [...shipments].sort((a, b) => {
-    let cmp = 0
-    switch (sortField) {
-      case 'tracking_number':
-        cmp = a.tracking_number.localeCompare(b.tracking_number)
-        break
-      case 'carrier':
-        cmp = (a.carrier?.name ?? '').localeCompare(b.carrier?.name ?? '')
-        break
-      case 'status':
-        cmp = a.status.localeCompare(b.status)
-        break
-      case 'customer_name':
-        cmp = (a.customer_name ?? '').localeCompare(b.customer_name ?? '')
-        break
-      case 'destination':
-        cmp = (a.destination ?? '').localeCompare(b.destination ?? '')
-        break
-      case 'last_update':
-        cmp = (a.last_update ?? '').localeCompare(b.last_update ?? '')
-        break
-    }
-    return sortDir === 'asc' ? cmp : -cmp
-  })
+  }, [search, statusFilter, carrierFilter, dateFrom, dateTo, sortField, sortDir, page, pageSize])
 
   function handleSort(field: SortField) {
     if (sortField === field) {
-      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+      const newDir = sortDir === 'asc' ? 'desc' : 'asc'
+      setSortDir(newDir)
     } else {
       setSortField(field)
       setSortDir('asc')
     }
+    setPage(1)
+  }
+
+  function handleFilterChange(setter: (...args: any[]) => void, ...args: any[]) {
+    setter(...args)
+    setPage(1)
   }
 
   function SortIcon({ field }: { field: SortField }) {
@@ -89,7 +169,7 @@ export default function Shipments() {
   }
 
   function handleExport() {
-    const csv = shipmentsToCSV(sorted)
+    const csv = shipmentsToCSV(shipments)
     const date = new Date().toISOString().slice(0, 10)
     downloadCSV(csv, `spedizioni-vetronaviglio-${date}.csv`)
   }
@@ -153,11 +233,17 @@ export default function Shipments() {
       setImportCarrierCode('')
       setPendingCsvRows([])
       if (fileInputRef.current) fileInputRef.current.value = ''
+      const offset = (page - 1) * pageSize
       const { data, count } = await getShipments({
         search: search || undefined,
         status: (statusFilter as ShipmentStatus) || undefined,
         carrier_id: carrierFilter || undefined,
-        limit: 200,
+        date_from: dateFrom || undefined,
+        date_to: dateTo || undefined,
+        sort_field: sortField,
+        sort_dir: sortDir,
+        limit: pageSize,
+        offset,
       })
       setShipments(data)
       setCount(count)
@@ -167,6 +253,8 @@ export default function Shipments() {
       setImporting(false)
     }
   }
+
+  const totalPages = Math.max(1, Math.ceil(count / pageSize))
 
   return (
     <div>
@@ -181,7 +269,7 @@ export default function Shipments() {
           </button>
           <button
             onClick={handleExport}
-            disabled={sorted.length === 0}
+            disabled={shipments.length === 0}
             className="border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
             Esporta CSV
@@ -201,12 +289,12 @@ export default function Shipments() {
           type="text"
           placeholder="Cerca per tracking, cliente, riferimento..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleFilterChange(setSearch, e.target.value)}
           className="flex-1 min-w-[200px] border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
         />
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as ShipmentStatus | '')}
+          onChange={(e) => handleFilterChange(setStatusFilter, e.target.value as ShipmentStatus | '')}
           className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
         >
           <option value="">Tutti gli stati</option>
@@ -216,7 +304,7 @@ export default function Shipments() {
         </select>
         <select
           value={carrierFilter}
-          onChange={(e) => setCarrierFilter(e.target.value)}
+          onChange={(e) => handleFilterChange(setCarrierFilter, e.target.value)}
           className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
         >
           <option value="">Tutti i corrieri</option>
@@ -224,6 +312,20 @@ export default function Shipments() {
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={(e) => handleFilterChange(setDateFrom, e.target.value)}
+          className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
+          title="Dal"
+        />
+        <input
+          type="date"
+          value={dateTo}
+          onChange={(e) => handleFilterChange(setDateTo, e.target.value)}
+          className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent"
+          title="Al"
+        />
       </div>
 
       {/* Table */}
@@ -235,7 +337,7 @@ export default function Shipments() {
         <div className="bg-red-50 border border-red-200 rounded-xl p-6">
           <p className="text-red-700 font-medium">Errore: {error}</p>
         </div>
-      ) : sorted.length === 0 ? (
+      ) : shipments.length === 0 ? (
         <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
           <p className="text-slate-400">Nessuna spedizione trovata</p>
         </div>
@@ -265,7 +367,7 @@ export default function Shipments() {
               </tr>
             </thead>
             <tbody>
-              {sorted.map((shipment) => (
+              {shipments.map((shipment) => (
                 <tr key={shipment.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                   <td className="px-4 py-3">
                     <Link
@@ -290,9 +392,17 @@ export default function Shipments() {
               ))}
             </tbody>
           </table>
-          <div className="px-4 py-3 border-t border-slate-200 bg-slate-50">
-            <p className="text-xs text-slate-500">{count} spedizioni totali</p>
-          </div>
+          <PaginationBar
+            page={page}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalCount={count}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size)
+              setPage(1)
+            }}
+          />
         </div>
       )}
 
@@ -308,9 +418,18 @@ export default function Shipments() {
                 Se manca <code className="bg-slate-100 px-1 rounded">carrier_code</code>, potrai selezionare il corriere dopo il caricamento.
                 Supporta file con separatori virgola o tab, e intestazioni in italiano (es. "Numero di monitoraggio").
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 mb-2">
                 Codici corriere validi: {carriers.map(c => c.code).join(', ')}
               </p>
+              <button
+                onClick={() => {
+                  const csv = generateCSVTemplate()
+                  downloadCSV(csv, `template-spedizioni.csv`)
+                }}
+                className="text-xs text-brand-primary hover:text-brand-primary-hover hover:underline font-medium"
+              >
+                Scarica template CSV
+              </button>
             </div>
 
             <input

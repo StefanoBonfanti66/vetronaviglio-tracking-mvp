@@ -15,8 +15,12 @@ export async function getShipments(filters?: {
   status?: ShipmentStatus
   carrier_id?: string
   search?: string
+  date_from?: string
+  date_to?: string
   limit?: number
   offset?: number
+  sort_field?: string
+  sort_dir?: 'asc' | 'desc'
 }): Promise<{ data: Shipment[]; count: number }> {
   let query = supabase
     .from('shipments')
@@ -31,8 +35,22 @@ export async function getShipments(filters?: {
   if (filters?.search) {
     query = query.or(`tracking_number.ilike.%${filters.search}%,customer_name.ilike.%${filters.search}%,customer_reference.ilike.%${filters.search}%`)
   }
+  if (filters?.date_from) {
+    query = query.gte('last_update', filters.date_from)
+  }
+  if (filters?.date_to) {
+    query = query.lte('last_update', filters.date_to)
+  }
 
-  query = query.order('last_update', { ascending: false })
+  const sortField = filters?.sort_field ?? 'last_update'
+  const sortDir = filters?.sort_dir ?? 'desc'
+
+  if (sortField === 'carrier') {
+    query = query.order('name', { foreignTable: 'carriers', ascending: sortDir === 'asc' })
+    query = query.order('last_update', { ascending: false })
+  } else {
+    query = query.order(sortField, { ascending: sortDir === 'asc', nullsFirst: false })
+  }
 
   if (filters?.limit) {
     query = query.range(filters.offset ?? 0, (filters.offset ?? 0) + filters.limit - 1)
@@ -67,20 +85,39 @@ export async function getTrackingEvents(shipmentId: string): Promise<TrackingEve
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const { data, error } = await supabase
-    .from('shipments')
-    .select('status')
+  const [total, inTransit, delivered, exceptions, pending] = await Promise.all([
+    supabase.from('shipments').select('*', { count: 'exact', head: true }),
+    supabase.from('shipments').select('*', { count: 'exact', head: true }).in('status', ['in_transit', 'picked_up', 'out_for_delivery']),
+    supabase.from('shipments').select('*', { count: 'exact', head: true }).eq('status', 'delivered'),
+    supabase.from('shipments').select('*', { count: 'exact', head: true }).eq('status', 'exception'),
+    supabase.from('shipments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+  ])
 
-  if (error) throw error
+  if (total.error) throw total.error
+  if (inTransit.error) throw inTransit.error
+  if (delivered.error) throw delivered.error
+  if (exceptions.error) throw exceptions.error
+  if (pending.error) throw pending.error
 
-  const shipments = data ?? []
   return {
-    total_shipments: shipments.length,
-    in_transit: shipments.filter(s => s.status === 'in_transit' || s.status === 'picked_up' || s.status === 'out_for_delivery').length,
-    delivered: shipments.filter(s => s.status === 'delivered').length,
-    exceptions: shipments.filter(s => s.status === 'exception').length,
-    pending: shipments.filter(s => s.status === 'pending').length,
+    total_shipments: total.count ?? 0,
+    in_transit: inTransit.count ?? 0,
+    delivered: delivered.count ?? 0,
+    exceptions: exceptions.count ?? 0,
+    pending: pending.count ?? 0,
   }
+}
+
+export async function getCarrierStats(): Promise<{ name: string; count: number }[]> {
+  const carriers = await getCarriers()
+  const counts = await Promise.all(
+    carriers.map(c =>
+      supabase.from('shipments').select('*', { count: 'exact', head: true }).eq('carrier_id', c.id)
+    )
+  )
+  return carriers
+    .map((c, i) => ({ name: c.name, count: counts[i].count ?? 0 }))
+    .filter(c => c.count > 0)
 }
 
 export async function createShipment(shipment: {
@@ -119,14 +156,12 @@ export async function updateShipment(
     origin?: string
     destination?: string
     notes?: string
+    last_update?: string
   }
 ): Promise<Shipment> {
   const { data, error } = await supabase
     .from('shipments')
-    .update({
-      ...updates,
-      last_update: new Date().toISOString(),
-    })
+    .update(updates)
     .eq('id', shipmentId)
     .select('*, carrier:carriers(*)')
     .single()
@@ -140,7 +175,11 @@ export async function updateShipmentStatus(
   status: ShipmentStatus,
   statusDescription?: string
 ): Promise<Shipment> {
-  return updateShipment(shipmentId, { status, status_description: statusDescription })
+  return updateShipment(shipmentId, {
+    status,
+    status_description: statusDescription,
+    last_update: new Date().toISOString(),
+  })
 }
 
 export async function deleteShipment(shipmentId: string): Promise<void> {
