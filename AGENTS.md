@@ -12,9 +12,16 @@
 - Use `PROJECT_AI_NOTES.md` to track decisions, checkpoints, and pending items across sessions.
 - If you use custom commands in your OpenCode setup, document project-specific ones here or in the repository docs.
 
-## Current Focus — 2026-07-23 (Sessione 2)
+## Current Focus — 2026-07-24 (Sessione 3)
 
-### Completato
+### Completato (Sessione 3 - 2026-07-24)
+- **DHL tracking integrato:** `DhlTracker` implementato, factory multi-carrier, endpoint unificato `/api/track`
+- **DHL su Preview Vercel:** Deploy preview con chiave test funzionante (`vetronaviglio-tracking-ippyrfw5s-stefano-bonfantis-projects.vercel.app`)
+- **Supabase:** `carriers.api_available = true` per DHL
+- **Git sync:** `develop` pushato, preview deploy automatico triggerato
+- **Workflow corretto:** develop → preview → test → merge main → production
+
+### Completato (precedente)
 - Bootstrap progetto da template `triathlon-starter`
 - **M1-M5:** Schema Supabase, FedEx API, Dashboard, CSV, Testing (36 test) — go-live produzione
 - **Rebranding + Deploy Vercel:** Production live su `app-blond-omega-14.vercel.app`
@@ -28,14 +35,17 @@
 - **Fix produzione:** ESM imports `.js` extension per serverless Vercel, vercel.json includeFiles per api/lib/
 
 ### Stato attuale
-- Branch `develop` — working tree pulito
-- `main` aggiornato con merge di develop (fix ESM + mobile)
-- Produzione live, preview Vercel funzionante
-- Architettura multi-carrier pronta: FedEx (attivo) + DHL (placeholder, richiede `DHL_API_KEY`)
+- Branch `develop` — working tree pulito (AGENTS.md + PROJECT_AI_NOTES.md commitati)
+- `main` allineato a develop (fix ESM + mobile)
+- Produzione live su `app-blond-omega-14.vercel.app` (solo FedEx attivo)
+- Preview Vercel funzionante con DHL test attivo
+- Architettura multi-carrier completa: FedEx (produzione) + DHL (test su preview, richiede chiave business per production)
 - 36/36 test passati, typecheck ✅ build ✅
 
 ### Prossimo step
-- Configurare DHL API key su Vercel per abilitare secondo carrier
-- Emettere FATT-002 (post-M2, €2.040)
-- Auth/login page
-- Raccogliere feedback cliente
+1. **Ottenere DHL API Key business Vetronaviglio** (Developer Portal → Consumer Key account business)
+2. **Aggiornare Vercel Production** con `DHL_API_KEY` + `VITE_DHL_API_KEY` reali
+3. **Merge `develop` → `main`** → deploy automatico production
+4. **FATT-002** — Emettere fattura post-M2 (€2.040, scadenza 2026-09-10)
+5. **Auth/login page** — Supabase Auth + middleware protezione dati
+6. **Raccogliere feedback cliente** su app production

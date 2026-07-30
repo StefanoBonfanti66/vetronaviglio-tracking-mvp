@@ -81,10 +81,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         try {
           const trackResult = await tracker.track(shipment.tracking_number)
 
-          if (trackResult.status === shipment.status && trackResult.status_description === shipment.status_description) {
-            results.unchanged++
-            continue
-          }
+          const now = new Date().toISOString()
+          const isUnchanged = trackResult.status === shipment.status && trackResult.status_description === shipment.status_description
 
           await fetch(`${SUPABASE_URL}/rest/v1/shipments?id=eq.${shipment.id}`, {
             method: 'PATCH',
@@ -97,9 +95,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             body: JSON.stringify({
               status: trackResult.status,
               status_description: trackResult.status_description,
-              last_update: new Date().toISOString(),
+              last_update: now,
             }),
           })
+
+          if (isUnchanged) {
+            results.unchanged++
+            continue
+          }
 
           const lastEvent = trackResult.events[0]
           if (lastEvent) {
