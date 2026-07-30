@@ -12,7 +12,18 @@
 - Use `PROJECT_AI_NOTES.md` to track decisions, checkpoints, and pending items across sessions.
 - If you use custom commands in your OpenCode setup, document project-specific ones here or in the repository docs.
 
-## Current Focus — 2026-07-30 (Sessione 4)
+## Current Focus — 2026-07-30 (Sessione 5)
+
+### Completato (Sessione 5 - 2026-07-30)
+- **Pagina Settings con gestione credenziali corrieri:** `/settings` riscritta con form per FedEx e DHL (campi password con toggle show/hide, stato corrieri, test connessione)
+- **`/api/settings/credentials` (GET/PUT):** Endpoint per leggere e salvare credenziali su Supabase (`carrier_credentials` table)
+- **`api/lib/credentials.ts`:** Utility per fetch credenziali da Supabase con fallback env var
+- **Tracker con carrierId:** FedExTracker e DhlTracker accettano `carrierId` opzionale e leggono credenziali dal DB
+- **`refresh-tracking.ts`:** Cron ora passa `carrier.id` ai tracker
+- **Fix critico:** Bug parsing Supabase REST API in credentials endpoint (`{data: carriers}` → array diretto)
+- **Merge `develop` → `main`:** Commit `4b88a8e` push su origin/main
+- typecheck ✅ 36/36 test ✅ build ✅
+- **⚠️ Deploy non partito:** Vercel auto-deploy non ha creato nuovo deploy dopo push su main. Utente deve triggerare manualmente dal Vercel Dashboard selezionando la nuova commit.
 
 ### Completato (Sessione 4 - 2026-07-30)
 - **Diagnosi dashboard ferma al 25/07:** 60/61 spedizioni già delivered, 1 in_transit ferma dal 14/07. Nessun bug — sistema funzionante correttamente ma senza nuovi dati.
@@ -24,7 +35,7 @@
 - **Dashboard button "Sync FedEx":** Pulsante + Ultimo sync timestamp + result banner
 - **vercel.json:** Aggiunto cron ogni 10 min (`*/10 * * * *`) per discovery automatica
 
-### Completato (precedente)
+### Completato (pre-sessione 4)
 - **Sessione 3:** DHL tracking integrato, preview funzionante, Git sync develop
 - **M1-M7:** Bootstrap, schema Supabase, FedEx API, Dashboard, CSV, 36 test, rebranding, deploy Vercel, paginazione, multi-carrier, mobile responsive, ESM fix
 - **UX Gaps:** CSV download, filtri data, PDF export, stats server-side, default 20 per pagina
@@ -32,15 +43,19 @@
 - **TrackingTimeline:** Componente animato con icone, colori, badge "Ultimo"
 
 ### Stato attuale
-- Branch `develop` con ultime modifiche (Settings, FedEx auto-discovery, DHL)
-- Branch `main` per produzione live su `app-blond-omega-14.vercel.app`
-- Preview Vercel funzionante con DHL test attivo
-- 36/36 test passati, typecheck ✅ build ✅
+- **2026-07-30 (Sessione 5):** Pagina Settings con gestione credenziali corrieri implementata e merge `develop` → `main` completato. Codice su GitHub main branch SHA `4b88a8e`.
+- Page Settings (`/settings`) riscritta: gestione credenziali per corriere (campi password con toggle show/hide), stato corrieri, test connessione
+- Endpoint `GET/PUT /api/settings/credentials` per lettura/scrittura credenziali da Supabase (`carrier_credentials` table)
+- Tracker (FedExTracker, DhlTracker) ora accettano `carrierId` opzionale e leggono credenziali dal DB con fallback env vars
+- Refresh-tracking cron aggiornato per passare `carrier.id` ai tracker
+- Bug fix: parsing risposta Supabase REST API in credentials endpoint (array vs `{data: []}`)
+- typecheck ✅ 36/36 test ✅ build ✅
+- **Deploy Vercel Production:** il merge è stato pushato su main ma Vercel auto-deploy non ha creato un nuovo deploy. L'ultimo deploy visibile usa ancora il vecchio codice. Verificare/V触发are manualmente dal Vercel Dashboard.
 
 ### Prossimo step
-1. **Ottenere DHL API Key business Vetronaviglio** (Developer Portal → Consumer Key account business)
-2. **Aggiornare Vercel Production** con `DHL_API_KEY` + `VITE_DHL_API_KEY` reali
-3. **Merge `develop` → `main`** → deploy automatico production
+1. **Eseguire SQL `carrier_credentials` su Supabase** — tabella non ancora creata nel DB (l'utente deve eseguirla nel Supabase Dashboard SQL Editor)
+2. **Triggerare deploy Vercel production** manualmente dal Vercel Dashboard selezionando la nuova commit
+3. **Verificare Settings page** su produzione con le credenziali configurate
 4. **FATT-002** — Emettere fattura post-M2 (€2.040, scadenza 2026-09-10)
 5. **Auth/login page** — Supabase Auth + middleware protezione dati
 6. **Raccogliere feedback cliente** su app production
