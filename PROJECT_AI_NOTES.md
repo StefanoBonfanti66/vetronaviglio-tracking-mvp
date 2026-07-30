@@ -158,6 +158,33 @@
 - **36/36 test passati** ✅ typecheck ✅ build (895KB JS, 20KB CSS)
 - **Note:** DHL richiede env var `DHL_API_KEY` (server) e `VITE_DHL_API_KEY` (browser) per funzionare
 
+### UX Gaps + Tech debt (2026-07-23)
+- **CSV template:** `generateCSVTemplate()` in `app/src/lib/csv.ts:199` — headers-only CSV. Bottone "Scarica template CSV" nell'import modal
+- **Date filters:** Aggiunti `date_from`/`date_to` a `getShipments()` — due `<input type="date">` nella filter bar
+- **PDF export:** Bottone "Stampa PDF" su ShipmentDetail con `window.print()` + CSS `@media print` che nasconde sidebar/nav
+- **Default page size:** 20 invece di 50
+- **Dashboard stats:** `getDashboardStats()` riscritto con 5 count paralleli `head:true` (zero data transfer). Aggiunto `getCarrierStats()` per grafico corrieri
+- **Tech debt:** `updateShipment()` non forza più `last_update`. Solo `updateShipmentStatus()` lo imposta esplicitamente.
+- **36/36 test passati** ✅ typecheck ✅ build ✅
+
+### TrackingTimeline + Mobile responsive (2026-07-23)
+- **TrackingTimeline:** `app/src/components/TrackingTimeline.tsx` — component animato (slide-in + pulse), icone per status, colori, badge "Ultimo", tempo relativo
+- **Sidebar collassabile:** hamburger button su mobile, overlay backdrop, `translate-x` transition, NavLink chiude sidebar
+- **Card-list mobile:** sotto `lg` la tabella spedizioni diventa card list (tracking, badge, corriere, cliente, data)
+- **Touch target WCAG 44px:** `min-w-[44px] min-h-[44px]` su paginazione e test connessione
+- **Bottoni azione:** icone SVG + testo nascosto su mobile (`hidden sm:inline`)
+- **Padding adattivo:** `p-4 sm:p-6 lg:p-8`
+- **Search min-w:** `min-w-[140px]` mobile, `min-w-[200px]` desktop
+- **ShipmentDetail header:** layout `flex-col sm:flex-row` con wrap
+- **36/36 test passati** ✅ typecheck ✅ build (904KB JS, 25.9KB CSS)
+
+### Fix produzione Vercel (2026-07-23)
+- **ESM imports:** Aggiunta estensione `.js` a tutti gli import in `api/` (refresh-tracking, track, FedExTracker, DhlTracker, index) — necessario per `"type": "module"` in package.json
+- **vercel.json:** Aggiunta `includeFiles: "api/lib/**"` per refresh-tracking e track functions
+- **FedExTracker:** Rimossa variabile inutilizzata `locationStr`
+- **Merge main:** `develop` mergiato in `main` con fix ESM + mobile responsive
+- **Env Vercel:** `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` configurate per Preview e Production
+
 ## Prossimo step suggerito
 - Configurare DHL API key su Vercel (env `DHL_API_KEY`)
 - Emettere FATT-002 (post-M2, €2.040)

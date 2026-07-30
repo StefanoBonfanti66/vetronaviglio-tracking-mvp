@@ -26,6 +26,12 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [refreshResult, setRefreshResult] = useState<string | null>(null)
+  const [syncingFedEx, setSyncingFedEx] = useState(false)
+  const [fedExSyncResult, setFedExSyncResult] = useState<string | null>(null)
+  const [syncingDhl, setSyncingDhl] = useState(false)
+  const [dhlSyncResult, setDhlSyncResult] = useState<string | null>(null)
+  const lastFedExSync = localStorage.getItem('fedex_last_sync')
+  const lastDhlSync = localStorage.getItem('dhl_last_sync')
 
   useEffect(() => {
     Promise.all([
@@ -75,6 +81,51 @@ export default function Dashboard() {
     }
   }
 
+  const handleSync = async (carrier: 'fedex' | 'dhl') => {
+    const setSyncing = carrier === 'fedex' ? setSyncingFedEx : setSyncingDhl
+    const setResult = carrier === 'fedex' ? setFedExSyncResult : setDhlSyncResult
+    const storageKey = carrier === 'fedex' ? 'fedex_last_sync' : 'dhl_last_sync'
+
+    setSyncing(true)
+    setResult(null)
+    try {
+      const res = await fetch('/api/discover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carrier }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        if (res.status === 401) {
+          setResult(`Sessione ${carrier === 'fedex' ? 'FedEx' : 'DHL'} scaduta — esegui il comando di login`)
+        } else {
+          setResult(`Errore: ${data.error}`)
+        }
+      } else {
+        localStorage.setItem(storageKey, new Date().toISOString())
+        const cap = carrier === 'fedex' ? 'FedEx' : 'DHL'
+        const count = data[carrier]?.api_count ?? '?'
+        setResult(
+          data.imported > 0
+            ? `Sync ${cap}: ${data.imported} nuove importate (${count} da ${cap})`
+            : `Sync ${cap}: tutto sincronizzato (${count} spedizioni)`,
+        )
+        const [statsData, shipmentsData, carrierData] = await Promise.all([
+          getDashboardStats(),
+          getShipments({ limit: 5 }),
+          getCarrierStats(),
+        ])
+        setStats(statsData)
+        setRecentShipments(shipmentsData.data)
+        setCarrierStats(carrierData)
+      }
+    } catch (err) {
+      setResult(`Errore di connessione: ${err instanceof Error ? err.message : 'sconosciuto'}`)
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -95,21 +146,63 @@ export default function Dashboard() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-brand-primary text-white text-sm font-medium rounded-lg hover:bg-brand-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          {refreshing ? 'Aggiornamento...' : 'Aggiorna tracking'}
-        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+          <div className="flex gap-4 mt-1">
+            {lastFedExSync && (
+              <p className="text-xs text-slate-400">Ultimo sync FedEx: {new Date(lastFedExSync).toLocaleString('it-IT')}</p>
+            )}
+            {lastDhlSync && (
+              <p className="text-xs text-slate-400">Ultimo sync DHL: {new Date(lastDhlSync).toLocaleString('it-IT')}</p>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleSync('fedex')}
+            disabled={syncingFedEx}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg className={`w-4 h-4 ${syncingFedEx ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {syncingFedEx ? 'Sync...' : 'Sync FedEx'}
+          </button>
+          <button
+            onClick={() => handleSync('dhl')}
+            disabled={syncingDhl}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg className={`w-4 h-4 ${syncingDhl ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {syncingDhl ? 'Sync...' : 'Sync DHL'}
+          </button>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-primary text-white text-sm font-medium rounded-lg hover:bg-brand-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {refreshing ? 'Aggiornamento...' : 'Aggiorna tracking'}
+          </button>
+        </div>
       </div>
       {refreshResult && (
         <div className={`mb-4 px-4 py-2 rounded-lg text-sm ${refreshResult.startsWith('Errore') ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
           {refreshResult}
+        </div>
+      )}
+      {fedExSyncResult && (
+        <div className={`mb-4 px-4 py-2 rounded-lg text-sm ${fedExSyncResult.startsWith('Errore') || fedExSyncResult.startsWith('Sessione') ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
+          {fedExSyncResult}
+        </div>
+      )}
+      {dhlSyncResult && (
+        <div className={`mb-4 px-4 py-2 rounded-lg text-sm ${dhlSyncResult.startsWith('Errore') || dhlSyncResult.startsWith('Sessione') ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
+          {dhlSyncResult}
         </div>
       )}
 

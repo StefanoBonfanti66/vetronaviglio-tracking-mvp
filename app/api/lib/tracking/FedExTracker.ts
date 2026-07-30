@@ -1,4 +1,5 @@
 import type { CarrierTracker, CarrierTrackResult, CarrierTrackEvent } from './types.js'
+import { getCarrierCredentials } from '../credentials.js'
 
 function mapFedExStatus(code: string): string {
   const map: Record<string, string> = {
@@ -17,14 +18,31 @@ function mapFedExStatus(code: string): string {
 export class FedExTracker implements CarrierTracker {
   private token: string | null = null
   private tokenExpiry = 0
+  private carrierId: string | null = null
+
+  constructor(carrierId?: string) {
+    this.carrierId = carrierId || null
+  }
+
+  private async getCredentials() {
+    if (this.carrierId) {
+      const dbCreds = await getCarrierCredentials(this.carrierId)
+      if (dbCreds.FEDEX_API_KEY && dbCreds.FEDEX_SECRET_KEY && dbCreds.FEDEX_BASE_URL) {
+        return dbCreds as Record<string, string>
+      }
+    }
+    return {}
+  }
 
   private async getToken(): Promise<string> {
     if (this.token && Date.now() < this.tokenExpiry) return this.token
 
-    const apiKey = process.env.FEDEX_API_KEY
-    const secretKey = process.env.FEDEX_SECRET_KEY
-    const baseUrl = process.env.FEDEX_BASE_URL
-    if (!apiKey || !secretKey || !baseUrl) {
+    const creds = await this.getCredentials()
+    const apiKey = creds.FEDEX_API_KEY || process.env.FEDEX_API_KEY
+    const secretKey = creds.FEDEX_SECRET_KEY || process.env.FEDEX_SECRET_KEY
+    const baseUrl = creds.FEDEX_BASE_URL || process.env.FEDEX_BASE_URL || 'https://apis.fedex.com'
+
+    if (!apiKey || !secretKey) {
       throw new Error('FedEx credentials not configured')
     }
 
@@ -53,7 +71,8 @@ export class FedExTracker implements CarrierTracker {
 
   async track(trackingNumber: string): Promise<CarrierTrackResult> {
     const token = await this.getToken()
-    const baseUrl = process.env.FEDEX_BASE_URL!
+    const creds = await this.getCredentials()
+    const baseUrl = creds.FEDEX_BASE_URL || process.env.FEDEX_BASE_URL || 'https://apis.fedex.com'
 
     const res = await fetch(`${baseUrl}/track/v1/trackingnumbers`, {
       method: 'POST',
