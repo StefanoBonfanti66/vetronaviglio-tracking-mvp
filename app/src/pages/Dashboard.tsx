@@ -26,6 +26,9 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [refreshResult, setRefreshResult] = useState<string | null>(null)
+  const [syncingFedEx, setSyncingFedEx] = useState(false)
+  const [fedExSyncResult, setFedExSyncResult] = useState<string | null>(null)
+  const lastFedExSync = localStorage.getItem('fedex_last_sync')
 
   useEffect(() => {
     Promise.all([
@@ -75,6 +78,40 @@ export default function Dashboard() {
     }
   }
 
+  const handleFedExSync = async () => {
+    setSyncingFedEx(true)
+    setFedExSyncResult(null)
+    try {
+      const res = await fetch('/api/discover', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        if (res.status === 401) {
+          setFedExSyncResult('Sessione FedEx scaduta — esegui `node scripts/discover-fedex.mjs` per ri-login')
+        } else {
+          setFedExSyncResult(`Errore: ${data.error}`)
+        }
+      } else {
+        localStorage.setItem('fedex_last_sync', new Date().toISOString())
+        const msg = data.imported > 0
+          ? `Sync FedEx: ${data.imported} nuove spedizioni importate (${data.fedex_count} da FedEx, ${data.supabase_before} in DB)`
+          : `Sync FedEx: tutto sincronizzato (${data.fedex_count} spedizioni FedEx, nessuna nuova)`
+        setFedExSyncResult(`${msg} (${data.duration_ms}ms)`)
+        const [statsData, shipmentsData, carrierData] = await Promise.all([
+          getDashboardStats(),
+          getShipments({ limit: 5 }),
+          getCarrierStats(),
+        ])
+        setStats(statsData)
+        setRecentShipments(shipmentsData.data)
+        setCarrierStats(carrierData)
+      }
+    } catch (err) {
+      setFedExSyncResult(`Errore di connessione: ${err instanceof Error ? err.message : 'sconosciuto'}`)
+    } finally {
+      setSyncingFedEx(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -95,21 +132,43 @@ export default function Dashboard() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-brand-primary text-white text-sm font-medium rounded-lg hover:bg-brand-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          {refreshing ? 'Aggiornamento...' : 'Aggiorna tracking'}
-        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+          {lastFedExSync && (
+            <p className="text-xs text-slate-400 mt-1">Ultimo sync FedEx: {new Date(lastFedExSync).toLocaleString('it-IT')}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleFedExSync}
+            disabled={syncingFedEx}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg className={`w-4 h-4 ${syncingFedEx ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {syncingFedEx ? 'Sync...' : 'Sync FedEx'}
+          </button>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-primary text-white text-sm font-medium rounded-lg hover:bg-brand-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {refreshing ? 'Aggiornamento...' : 'Aggiorna tracking'}
+          </button>
+        </div>
       </div>
       {refreshResult && (
         <div className={`mb-4 px-4 py-2 rounded-lg text-sm ${refreshResult.startsWith('Errore') ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
           {refreshResult}
+        </div>
+      )}
+      {fedExSyncResult && (
+        <div className={`mb-4 px-4 py-2 rounded-lg text-sm ${fedExSyncResult.startsWith('Errore') || fedExSyncResult.startsWith('Sessione') ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
+          {fedExSyncResult}
         </div>
       )}
 

@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/refresh-tracking",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/discover",
+      "schedule": "*/10 * * * *"
     }
   ],
   "functions": {
@@ -10,6 +14,9 @@
       "includeFiles": "api/lib/**"
     },
     "api/track.ts": {
+      "includeFiles": "api/lib/**"
+    },
+    "api/discover.ts": {
       "includeFiles": "api/lib/**"
     }
   },
