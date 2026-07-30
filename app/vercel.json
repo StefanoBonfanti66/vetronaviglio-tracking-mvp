@@ -18,6 +18,9 @@
     },
     "api/discover.ts": {
       "includeFiles": "api/lib/**"
+    },
+    "api/settings/credentials.ts": {
+      "includeFiles": "api/lib/**"
     }
   },
   "rewrites": [

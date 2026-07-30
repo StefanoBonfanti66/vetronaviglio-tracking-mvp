@@ -6,3 +6,4 @@ app/dist/
 .vercel/
 .playwright-mcp/
 supabase/.temp/
+.vercel

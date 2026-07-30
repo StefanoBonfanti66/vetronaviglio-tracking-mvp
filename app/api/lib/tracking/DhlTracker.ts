@@ -1,4 +1,5 @@
 import type { CarrierTracker, CarrierTrackResult, CarrierTrackEvent } from './types.js'
+import { getCarrierCredentials } from '../credentials.js'
 
 function mapDhlStatus(statusCode: string): string {
   const map: Record<string, string> = {
@@ -17,8 +18,20 @@ function mapDhlStatus(statusCode: string): string {
 }
 
 export class DhlTracker implements CarrierTracker {
+  private carrierId: string | null = null
+
+  constructor(carrierId?: string) {
+    this.carrierId = carrierId || null
+  }
+
   async track(trackingNumber: string): Promise<CarrierTrackResult> {
-    const apiKey = process.env.DHL_API_KEY
+    let apiKey = process.env.DHL_API_KEY
+
+    if (!apiKey && this.carrierId) {
+      const creds = await getCarrierCredentials(this.carrierId)
+      apiKey = creds.DHL_API_KEY || apiKey
+    }
+
     if (!apiKey) {
       throw new Error('DHL API key not configured')
     }

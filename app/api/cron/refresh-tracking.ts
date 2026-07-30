@@ -70,7 +70,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       let tracker: ReturnType<typeof getTracker> | null = null
       try {
-        tracker = getTracker(carrier.code)
+        tracker = getTracker(carrier.code, carrier.id)
       } catch {
         results.errors = shipments.length
         globalResults[carrier.code] = results
