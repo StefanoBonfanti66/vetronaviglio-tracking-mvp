@@ -2,12 +2,12 @@
 title: "Vetronaviglio Tracking MVP"
 slug: vetronaviglio-tracking-mvp
 project_type: internal
-commercial_status: inactive
-operational_status: staging
-administrative_status: inactive
+commercial_status: active
+operational_status: production
+administrative_status: active
 client: Vetronaviglio s.r.l.
 owner: Zetabytenexus
-last_updated: 2026-07-21
+last_updated: 2026-07-31
 mcp_profile: saas
 ---
 
@@ -32,6 +32,8 @@ MVP di una dashboard web che aggrega i dati di tracking da diversi corrieri (Fed
 
 ## Stato attuale
 
-- Brief completato
-- Posizionamento commerciale definito
-- In attesa di formalizzazione preventivo e approvazione cliente
+- MVP completo (M1-M7) e go-live confermato
+- Production live su Vercel: `app-blond-omega-14.vercel.app`
+- Integrazioni attive: FedEx Track API, DHL Track API, cron daily refresh
+- FATT-001 incassata; FATT-002/003/004 da emettere
+- Prossimi step: credenziali corrieri reali in Settings, auth/login, feedback cliente
