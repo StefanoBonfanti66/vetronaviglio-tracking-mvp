@@ -213,3 +213,11 @@
 - **Sync verificato in produzione:** POST `/api/discover` senza cookie → 200, api_count 58, 208 spedizioni in Supabase, 0 importate (tutte duplicate). Bottone dashboard funziona.
 - **.gitignore:** aggiunti `scripts/.fedex-session.json` e `scripts/.fedex-requests.json` (cookie di sessione sensibili).
 - Commit: `37a297b` persistenza, `91b952a` fix import .js, `ef11e9e` fix script + gitignore.
+
+### Sessione 7b — Sync DHL risolto via estrazione in-browser (2026-07-31)
+- **Vincolo Akamai accertato:** DHL (mydhl.express.dhl) usa Akamai Bot Manager (`bm_sz`/`_abck`) che lega la sessione all'IP del browser che l'ha creata. Replay server-side dei cookie (da Vercel fra1, da macchina utente home, deduplicati o no) → sempre HTTP 200 ma `shipments: 0` (soft-block, non 401). Il flusso FedEx funziona perché FedEx non fa IP-binding; per DHL l'architettura "cookie → /api/discover → server chiama DHL" è strutturalmente impossibile.
+- **Nuovo branch server (commit b969705):** `api/discover.ts` POST accetta `{carrier:'dhl', trackingNumbers:[...]}` (form urlencoded `trackingNumbers=<csv>`) → `importShipments` diretta con `statusDescription: 'DHL discovery (browser)'`. Il server non chiama più DHL; importa solo i numeri ricevuti dal browser. Il vecchio branch cookies→`discoverDhl` resta come fallback innocuo.
+- **Estrazione in-browser:** dal page context di mydhl.express.dhl (same-origin, sessione valida) fetch POST a `/api/mms/search` con `x-xsrf-token` da `document.cookie` + `x-requested-with: XMLHttpRequest` → 156 item, 153 AWB reali (esclusi 3 `_FAV`). Upload via curl → **`imported: 5`, supabase 208→213**.
+- **Script discover-dhl.mjs riscritto (commit 50f7bd7):** niente più forwarding cookie. Ora: login (auto o `--manual`), estrazione AWB via `page.evaluate` same-origin fetch, POST `{carrier:'dhl', trackingNumbers}` in JSON all'endpoint. File sessione `scripts/.dhl-session.json` contiene solo tracking numbers (non credenziali). `--no-browser` ri-uploada l'ultima lista salvata.
+- **Da valutare:** bottone "Sync DHL" in dashboard (oggi solo FedEx ha il Sync button); rimozione credenziali DHL hardcoded in discover-dhl.mjs (`DHL_USER`/`DHL_PASS` fallback `m.colombo@vetronaviglio.it`/`Vetronaviglio1&`).
+- Commit: `b969705` server branch, `50f7bd7` script rewrite.
