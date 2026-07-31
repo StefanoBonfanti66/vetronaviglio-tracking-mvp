@@ -270,13 +270,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { carrier = 'fedex', cookies, accessToken, xsrfToken } = req.body || {}
+  const { carrier = 'fedex', cookies, accessToken, xsrfToken, trackingNumbers } = req.body || {}
 
   const fedexCarrierId = await getCarrierIdByCode('fedex', SUPABASE_URL, supabaseHeaders())
   const fedexCreds = fedexCarrierId ? await getCarrierCredentials(fedexCarrierId) : {}
 
   try {
     if (carrier === 'dhl') {
+      const dhlTrackingNumbers = Array.isArray(trackingNumbers)
+        ? trackingNumbers
+        : typeof trackingNumbers === 'string'
+          ? trackingNumbers.split(',').map(t => t.trim()).filter(Boolean)
+          : []
+
+      if (dhlTrackingNumbers.length > 0) {
+        const result = await importShipments(
+          dhlTrackingNumbers.map(awb => ({
+            trackingNumber: awb,
+            statusDescription: 'DHL discovery (browser)',
+            destination: null,
+          })),
+          'dhl',
+          SUPABASE_URL,
+          supabaseHeaders(),
+          startTime,
+          dhlTrackingNumbers.length,
+        )
+        return res.status(result.status).json({
+          message: (result.imported ?? 0) > 0
+            ? `Importate ${result.imported ?? 0} nuove spedizioni DHL`
+            : 'Nessuna nuova spedizione DHL',
+          ...result,
+        })
+      }
+
       const dhlCarrierId = await getCarrierIdByCode('dhl', SUPABASE_URL, supabaseHeaders())
       const dhlCreds = dhlCarrierId ? await getCarrierCredentials(dhlCarrierId) : {}
       const dhlCookies = cookies || dhlCreds.DHL_SESSION_COOKIES
