@@ -203,3 +203,13 @@
 - Raccogliere feedback cliente su app production
 - Auth/login page (protezione reale dati)
 - Fix TS warning in `api/discover.ts`
+
+### Sessione 7 — Sync FedEx funzionante end-to-end (2026-07-31)
+- **Bug bottone Sync FedEx:** ogni clic dava 400 "FedEx session cookies required" — `FEDEX_SESSION_COOKIES` non era impostato su Vercel e il POST non aveva fallback.
+- **Persistenza cookie in Supabase (commit 37a297b):** `api/discover.ts` ora legge `carrier_credentials` come fallback (chiavi `FEDEX_SESSION_COOKIES`/`FEDEX_ACCESS_TOKEN` per fedex, `DHL_SESSION_COOKIES`/`DHL_XSRF_TOKEN` per dhl) tramite `getCarrierCredentials` + helper `getCarrierIdByCode`/`upsertCredential`. Quando lo script invia sessione fresca, il POST la salva.
+- **Crash 500 in produzione (commit 91b952a):** import `./lib/credentials` senza estensione `.js` → Node ESM `ERR_MODULE_NOT_FOUND` (FUNCTION_INVOCATION_FAILED). Fix: `'./lib/credentials.js'`. Tutti gli import in `api/` usano estensione `.js` esplicita.
+- **Script discover-fedex.mjs round 2:** rimossa annotazione TS in .mjs, timeout navigazione 40s, URL login `https://www.fedex.com/secure-login/it-it/#/credentials`, parsing endpoint (filtro arg `--`), navigazione post-login a `fedextracking/` per forzare la chiamata API SPA + wait 8s, cattura header `authorization` Bearer da request verso api.fedex.com, log dei request tracking in `scripts/.fedex-requests.json`.
+- **Token 34-char non valido:** il primo Bearer su api.fedex.com (`l75c...`, device token) dà 401 `invalid_request`. Il token valido arriva SOLO navigando a `fedextracking/` dopo il login.
+- **Sync verificato in produzione:** POST `/api/discover` senza cookie → 200, api_count 58, 208 spedizioni in Supabase, 0 importate (tutte duplicate). Bottone dashboard funziona.
+- **.gitignore:** aggiunti `scripts/.fedex-session.json` e `scripts/.fedex-requests.json` (cookie di sessione sensibili).
+- Commit: `37a297b` persistenza, `91b952a` fix import .js, `ef11e9e` fix script + gitignore.
