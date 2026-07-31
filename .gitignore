@@ -8,3 +8,5 @@ app/dist/
 supabase/.temp/
 .vercel
 .env*
+scripts/.fedex-session.json
+scripts/.fedex-requests.json

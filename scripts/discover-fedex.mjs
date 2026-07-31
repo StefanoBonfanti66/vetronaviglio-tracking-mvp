@@ -13,7 +13,7 @@ async function loadSession() {
   }
 }
 
-function saveSession(data: { cookies: string; accessToken: string }) {
+function saveSession(data) {
   writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2))
 }
 
@@ -21,19 +21,57 @@ async function getFedExCookiesAndToken(browser) {
   const context = await browser.newContext()
   const page = await context.newPage()
 
-  console.log('Navigating to FedEx Tracking...')
-  await page.goto('https://www.fedex.com/fedextracking/', { waitUntil: 'networkidle' })
+  let capturedToken = null
+  const capturedRequests = []
+  page.on('request', req => {
+    const url = req.url()
+    if (!/visibilitieslist|shipments|track/i.test(url)) return
+    const headers = req.headers()
+    if (!capturedToken && url.includes('api.fedex.com')) {
+      const auth = headers['authorization']
+      if (auth && auth.startsWith('Bearer ')) {
+        capturedToken = auth.slice(7)
+      }
+    }
+    capturedRequests.push({
+      method: req.method(),
+      url,
+      authorization: headers['authorization'] || null,
+      cookie: headers['cookie'] ? `${headers['cookie'].slice(0, 120)}...` : null,
+      body: req.postData() || null,
+    })
+  })
+  page.on('response', res => {
+    const url = res.url()
+    if (!/visibilitieslist|shipments|track/i.test(url)) return
+    const entry = capturedRequests.find(r => r.url === url && r.status === undefined)
+    if (entry) entry.status = res.status()
+  })
+
+  console.log('Navigating to FedEx Login...')
+  await page.goto('https://www.fedex.com/secure-login/it-it/#/credentials', { waitUntil: 'domcontentloaded', timeout: 40000 })
 
   const currentUrl = page.url()
   if (currentUrl.includes('login') || currentUrl.includes('auth')) {
-    console.log('Login required — use existing browser session with --headed or provide cookies')
-    console.log('Current URL:', currentUrl)
-    await page.close()
-    await context.close()
-    return null
+    if (!process.argv.includes('--headed')) {
+      console.log('Login required — run with --headed to complete the login manually')
+      await page.close()
+      await context.close()
+      return null
+    }
+    console.log('Login page open — complete the login in the browser...')
+    console.log('Waiting for login to complete...')
+    await page.waitForURL(u => !u.toString().includes('login') && !u.toString().includes('auth'), { timeout: 120000 }).catch(() => {})
+    console.log('Proceeding to extract session...')
+  } else {
+    console.log('Already logged in, extracting session...')
   }
 
-  console.log('Already logged in, extracting session...')
+  try {
+    await page.goto('https://www.fedex.com/fedextracking/', { waitUntil: 'domcontentloaded', timeout: 40000 })
+  } catch {}
+
+  await page.waitForTimeout(8000)
 
   const cookies = await context.cookies()
   const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ')
@@ -44,22 +82,37 @@ async function getFedExCookiesAndToken(browser) {
   })
 
   const tokenFromStorage = await page.evaluate(() => {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      if (key && key.includes('token')) {
+    const stores = [localStorage, sessionStorage]
+    for (const store of stores) {
+      for (let i = 0; i < store.length; i++) {
+        const key = store.key(i)
         try {
-          const val = JSON.parse(localStorage.getItem(key))
-          if (typeof val === 'string') return val
-          if (val?.access_token) return val.access_token
+          const raw = store.getItem(key)
+          if (!raw) continue
+          if (key.toLowerCase().includes('token')) {
+            try {
+              const val = JSON.parse(raw)
+              if (typeof val === 'string') return val
+              if (val?.access_token) return val.access_token
+              if (val?.accessToken) return val.accessToken
+              if (val?.token) return val.token
+            } catch {}
+          }
         } catch {}
       }
     }
     return null
   })
 
-  const finalToken = accessToken || tokenFromStorage
+  const finalToken = capturedToken || accessToken || tokenFromStorage
 
   console.log(`Got ${cookies.length} cookies, token: ${finalToken ? 'yes' : 'no'}`)
+  if (capturedRequests.length) {
+    writeFileSync('./scripts/.fedex-requests.json', JSON.stringify(capturedRequests, null, 2))
+    const urls = [...new Set(capturedRequests.map(r => r.url))]
+    console.log(`Captured ${capturedRequests.length} tracking requests (saved to ./scripts/.fedex-requests.json):`)
+    urls.slice(0, 15).forEach(u => console.log(' -', u))
+  }
 
   await page.close()
   await context.close()
@@ -81,7 +134,8 @@ async function callDiscoverEndpoint(session, endpoint) {
 }
 
 async function main() {
-  const endpoint = process.argv[2] || VERCEL_ENDPOINT
+  const args = process.argv.slice(2).filter(a => !a.startsWith('--'))
+  const endpoint = args[0] || VERCEL_ENDPOINT
   const noBrowser = process.argv.includes('--no-browser')
 
   let session = null
