@@ -12,7 +12,17 @@
 - Use `PROJECT_AI_NOTES.md` to track decisions, checkpoints, and pending items across sessions.
 - If you use custom commands in your OpenCode setup, document project-specific ones here or in the repository docs.
 
-## Current Focus — 2026-07-30 (Sessione 5)
+## Current Focus — 2026-07-31 (Sessione 6)
+
+### Completato (Sessione 6 - 2026-07-31)
+- **Migration 002 applicata:** Tabella `carrier_credentials` creata su Supabase (ebcxgmaavbhjkwhtkcie) via Management API + 3 policy RLS. File: `supabase/migrations/002_carrier_credentials.sql`
+- **Root cause deploy bloccati trovata:** Cron sub-giornaliero `/api/discover` (`*/10`) non ammesso su piano Hobby → ogni deploy falliva. Rimosso da `app/vercel.json` (endpoint + button Sync FedEx ancora funzionanti)
+- **Fix `.vercel/project.json` stale:** Ri-linkato al progetto corretto `vetronaviglio-tracking` (prj_MrfNdzjAXveN2gM8gqFAQeTBZmp0) con `vercel link`; aggiunta riga `.env*` a `.gitignore`
+- **Deploy production riuscito:** `vercel --prod` → `https://app-blond-omega-14.vercel.app` READY
+- **Auto-deploy verificato:** Push `c7adf7d` su main → nuovo deploy production automatico (BUILDING → READY) — problema auto-deploy risolto alla radice
+- **Settings page verificata in produzione:** Form FedEx/DHL con toggle password, stato corrieri (FedEx/DHL "API disponibile"), test connessione — tutto OK
+- **Commit:** `c7adf7d` push su origin/main (migration + vercel.json + .gitignore)
+- typecheck ✅ 36/36 test ✅ build ✅
 
 ### Completato (Sessione 5 - 2026-07-30)
 - **Pagina Settings con gestione credenziali corrieri:** `/settings` riscritta con form per FedEx e DHL (campi password con toggle show/hide, stato corrieri, test connessione)
@@ -43,19 +53,18 @@
 - **TrackingTimeline:** Componente animato con icone, colori, badge "Ultimo"
 
 ### Stato attuale
-- **2026-07-30 (Sessione 5):** Pagina Settings con gestione credenziali corrieri implementata e merge `develop` → `main` completato. Codice su GitHub main branch SHA `4b88a8e`.
-- Page Settings (`/settings`) riscritta: gestione credenziali per corriere (campi password con toggle show/hide), stato corrieri, test connessione
-- Endpoint `GET/PUT /api/settings/credentials` per lettura/scrittura credenziali da Supabase (`carrier_credentials` table)
-- Tracker (FedExTracker, DhlTracker) ora accettano `carrierId` opzionale e leggono credenziali dal DB con fallback env vars
-- Refresh-tracking cron aggiornato per passare `carrier.id` ai tracker
-- Bug fix: parsing risposta Supabase REST API in credentials endpoint (array vs `{data: []}`)
+- **2026-07-31 (Sessione 6):** Migration `carrier_credentials` applicata su Supabase, root cause deploy bloccati risolto (cron sub-giornaliero non ammesso su Hobby), auto-deploy Vercel funzionante. Codice su GitHub main branch SHA `c7adf7d`.
+- Tabella `carrier_credentials` attiva su Supabase (id, carrier_id, credential_key, credential_value, created_at, updated_at) con RLS (3 policy authenticated)
+- Cron `/api/discover` rimosso da vercel.json (resta il cron daily `/api/cron/refresh-tracking` "0 6 * * *")
+- `.vercel/project.json` ri-linkato al progetto corretto `vetronaviglio-tracking` (root = app)
+- Deploy production live: `https://app-blond-omega-14.vercel.app`
+- Settings page verificata in produzione: form FedEx (API Key, Secret Key, Endpoint URL) e DHL (API Key), toggle password, stato corrieri, test connessione
+- Endpoint `GET /api/settings/credentials` → HTTP 200 con carrierId FedEx/DHL e campi `set:false` (nessuna credenziale salvata)
 - typecheck ✅ 36/36 test ✅ build ✅
-- **Deploy Vercel Production:** il merge è stato pushato su main ma Vercel auto-deploy non ha creato un nuovo deploy. L'ultimo deploy visibile usa ancora il vecchio codice. Verificare/V触发are manualmente dal Vercel Dashboard.
 
 ### Prossimo step
-1. **Eseguire SQL `carrier_credentials` su Supabase** — tabella non ancora creata nel DB (l'utente deve eseguirla nel Supabase Dashboard SQL Editor)
-2. **Triggerare deploy Vercel production** manualmente dal Vercel Dashboard selezionando la nuova commit
-3. **Verificare Settings page** su produzione con le credenziali configurate
-4. **FATT-002** — Emettere fattura post-M2 (€2.040, scadenza 2026-09-10)
-5. **Auth/login page** — Supabase Auth + middleware protezione dati
-6. **Raccogliere feedback cliente** su app production
+1. **Salvare credenziali reali corrieri** nella Settings page (o via API PUT) — campi attualmente vuoti
+2. **FATT-002** — Emettere fattura post-M2 (€2.040, scadenza 2026-09-10)
+3. **Auth/login page** — Supabase Auth + middleware protezione dati
+4. **Raccogliere feedback cliente** su app production
+5. **Fix TS warning in `api/discover.ts`** (supabaseHeaders/result.imported) — non bloccante per build

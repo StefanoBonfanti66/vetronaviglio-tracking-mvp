@@ -119,9 +119,10 @@
 9. **FATT-002** — Emettere post-M2 (€2.040)
 10. **FATT-003** — Emettere post-M3 (€3.060)
 11. **FATT-004** — Emettere go-live M5 (€3.060)
+12. **Salvare credenziali reali corrieri** nella Settings page (o via API PUT) — tabella pronta, campi vuoti
 
 ## Problemi aperti
-- Nessuno — app funzionante in produzione
+- TS warning in `api/discover.ts` (supabaseHeaders/result.imported) — non bloccante, da sistemare
 
 ## File toccati (M5 + post-M5)
 - `app/README.md` — aggiornato per Vetronaviglio Tracking MVP
@@ -185,8 +186,20 @@
 - **Merge main:** `develop` mergiato in `main` con fix ESM + mobile responsive
 - **Env Vercel:** `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` configurate per Preview e Production
 
+### Sessione 6 — Migration carrier_credentials + fix deploy (2026-07-31)
+- **Migration 002 `carrier_credentials`:** Tabella creata su Supabase (ebcxgmaavbhjkwhtkcie) via Management API (POST `/v1/projects/{id}/database/migrations`). Verificata con query: 6 colonne NOT NULL (id uuid pk, carrier_id uuid FK carriers.id on delete cascade, credential_key, credential_value, created_at/updated_at), unique(carrier_id, credential_key), trigger `trg_carrier_credentials_updated_at` su `update_updated_at()`, RLS con 3 policy (select/insert/update authenticated), 0 righe.
+- **Root cause deploy bloccati:** `app/vercel.json` conteneva cron `*/10` per `/api/discover` — non ammesso su piano Hobby ("Hobby accounts are limited to daily cron jobs"). Ogni deploy falliva da Sessione 4. Rimosso il cron (endpoint + Sync FedEx button + `scripts/discover-fedex.mjs` restano funzionanti).
+- **Fix `.vercel/project.json`:** Era stale (puntava a `prj_DnVQAv20kYOS3clqiPWXvytVEVWq`, inesistente → 404). Ri-linkato con `vercel link --yes --project vetronaviglio-tracking` a `prj_MrfNdzjAXveN2gM8gqFAQeTBZmp0` (team_B6AotpnvMANmD05O0G0u46Qv). Aggiunta `.env*` a `.gitignore`.
+- **Deploy:** `vercel --prod` → alias production `app-blond-omega-14.vercel.app`. Poi push `c7adf7d` su main → auto-deploy automatico READY (dpl_345j81rR3gSMAdgWtz9xF75WS6VK).
+- **Settings verificata in produzione:** form FedEx (API Key, Secret Key, Endpoint URL placeholder https://apis.fedex.com) + DHL (API Key), toggle 👁 password, stato corrieri (FedEx/DHL API disponibile, BRT/GLS/SDA/TNT solo manuale), test connessione. GET `/api/settings/credentials` → 200, carrierId fedex `d97f5ac0-7ee0-4f9f-b25b-cc83388a4975`, dhl `4dc56bd0-3872-4dee-b07f-54ab4e95e1d5`, tutti `set:false`.
+- **Credenziali corrieri non ancora salvate** — nessuna credenziale reale inserita (step successivo).
+- **Note token Supabase:** il PAT iniziale era di account errato (403 su ebcxgmaavbhjkwhtkcie); usato PAT con accesso al progetto. Tokens non committati.
+- **TS warning in `api/discover.ts`** (linee ~205/209/236/249: `supabaseHeaders` used before declaration, `result.imported` possibly undefined) — non bloccano build/deploy Vercel, da sistemare.
+- typecheck ✅ 36/36 test ✅ build ✅ (904KB JS, chunk >500KB warning non bloccante)
+
 ## Prossimo step suggerito
-- Configurare DHL API key su Vercel (env `DHL_API_KEY`)
+- Salvare credenziali reali corrieri nella Settings page (tabella `carrier_credentials` pronta su Supabase)
 - Emettere FATT-002 (post-M2, €2.040)
 - Raccogliere feedback cliente su app production
 - Auth/login page (protezione reale dati)
+- Fix TS warning in `api/discover.ts`
