@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { getCarrierCredentials } from './lib/credentials'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -134,6 +135,41 @@ function supabaseHeaders(): Record<string, string> {
   }
 }
 
+async function getCarrierIdByCode(code: string, supabaseUrl: string, headers: Record<string, string>): Promise<string | null> {
+  const res = await fetch(`${supabaseUrl}/rest/v1/carriers?code=eq.${code}&select=id`, { headers })
+  if (!res.ok) return null
+  const rows = await res.json() as Array<{ id: string }>
+  return rows[0]?.id ?? null
+}
+
+async function upsertCredential(carrierId: string, key: string, value: string, supabaseUrl: string, headers: Record<string, string>): Promise<void> {
+  if (!value) return
+  const exists = await fetch(
+    `${supabaseUrl}/rest/v1/carrier_credentials?carrier_id=eq.${carrierId}&credential_key=eq.${key}&select=id`,
+    { headers },
+  ).then(r => r.json())
+
+  if (exists?.length > 0) {
+    await fetch(
+      `${supabaseUrl}/rest/v1/carrier_credentials?carrier_id=eq.${carrierId}&credential_key=eq.${key}`,
+      {
+        method: 'PATCH',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential_value: value }),
+      },
+    )
+  } else {
+    await fetch(
+      `${supabaseUrl}/rest/v1/carrier_credentials`,
+      {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ carrier_id: carrierId, credential_key: key, credential_value: value }),
+      },
+    )
+  }
+}
+
 async function importShipments(
   items: Array<{ trackingNumber: string; statusDescription: string | null; destination: string | null }>,
   carrierCode: string,
@@ -213,9 +249,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!auth || auth !== `Bearer ${CRON_SECRET}`) {
       return res.status(401).json({ error: 'Unauthorized' })
     }
+    const fedexCarrierId = await getCarrierIdByCode('fedex', SUPABASE_URL, supabaseHeaders())
+    const fedexCreds = fedexCarrierId ? await getCarrierCredentials(fedexCarrierId) : {}
     const result = await discoverFedex(
-      process.env.FEDEX_SESSION_COOKIES || '',
-      process.env.FEDEX_ACCESS_TOKEN,
+      process.env.FEDEX_SESSION_COOKIES || fedexCreds.FEDEX_SESSION_COOKIES || '',
+      process.env.FEDEX_ACCESS_TOKEN || fedexCreds.FEDEX_ACCESS_TOKEN,
       SUPABASE_URL,
       supabaseHeaders(),
       startTime,
@@ -234,13 +272,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { carrier = 'fedex', cookies, accessToken, xsrfToken } = req.body || {}
 
+  const fedexCarrierId = await getCarrierIdByCode('fedex', SUPABASE_URL, supabaseHeaders())
+  const fedexCreds = fedexCarrierId ? await getCarrierCredentials(fedexCarrierId) : {}
+
   try {
     if (carrier === 'dhl') {
-      const dhlCookies = cookies
-      if (!dhlCookies || !xsrfToken) {
+      const dhlCarrierId = await getCarrierIdByCode('dhl', SUPABASE_URL, supabaseHeaders())
+      const dhlCreds = dhlCarrierId ? await getCarrierCredentials(dhlCarrierId) : {}
+      const dhlCookies = cookies || dhlCreds.DHL_SESSION_COOKIES
+      const dhlXsrf = xsrfToken || dhlCreds.DHL_XSRF_TOKEN
+      if (!dhlCookies || !dhlXsrf) {
         return res.status(400).json({ error: 'DHL session cookies and XSRF token required — run discover-dhl script first' })
       }
-      const result = await discoverDhl(dhlCookies, xsrfToken, SUPABASE_URL, supabaseHeaders(), startTime)
+      const result = await discoverDhl(dhlCookies, dhlXsrf, SUPABASE_URL, supabaseHeaders(), startTime)
+      if (dhlCarrierId) {
+        await upsertCredential(dhlCarrierId, 'DHL_SESSION_COOKIES', cookies, SUPABASE_URL, supabaseHeaders())
+        await upsertCredential(dhlCarrierId, 'DHL_XSRF_TOKEN', xsrfToken, SUPABASE_URL, supabaseHeaders())
+      }
       return res.status(result.status).json({
         message: (result.imported ?? 0) > 0
           ? `Importate ${result.imported ?? 0} nuove spedizioni DHL`
@@ -249,11 +297,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     }
 
-    const fedexCookies = cookies || process.env.FEDEX_SESSION_COOKIES
+    const fedexCookies = cookies || fedexCreds.FEDEX_SESSION_COOKIES || process.env.FEDEX_SESSION_COOKIES
     if (!fedexCookies) {
       return res.status(400).json({ error: 'FedEx session cookies required — run discover-fedex script first' })
     }
-    const result = await discoverFedex(fedexCookies, accessToken, SUPABASE_URL, supabaseHeaders(), startTime)
+    const result = await discoverFedex(
+      fedexCookies,
+      accessToken || fedexCreds.FEDEX_ACCESS_TOKEN,
+      SUPABASE_URL,
+      supabaseHeaders(),
+      startTime,
+    )
+    if (fedexCarrierId) {
+      await upsertCredential(fedexCarrierId, 'FEDEX_SESSION_COOKIES', cookies, SUPABASE_URL, supabaseHeaders())
+      await upsertCredential(fedexCarrierId, 'FEDEX_ACCESS_TOKEN', accessToken, SUPABASE_URL, supabaseHeaders())
+    }
     return res.status(result.status).json({
       message: (result.imported ?? 0) > 0
         ? `Importate ${result.imported ?? 0} nuove spedizioni da FedEx`
