@@ -18,7 +18,7 @@ interface DhlSearchResponse {
   page: { totalElements: number }
 }
 
-async function discoverFedex(cookies: string, accessToken: string | undefined, supabaseUrl: string, supabaseHeaders: Record<string, string>, startTime: number) {
+async function discoverFedex(cookies: string, accessToken: string | undefined, supabaseUrl: string, supabaseHeaders: Record<string, string>, startTime: number): Promise<DiscoverResult> {
   const token = accessToken || process.env.FEDEX_ACCESS_TOKEN
 
   const fedexRes = await fetch('https://api.fedex.com/track/v2/shipments/visibilitieslist', {
@@ -71,7 +71,7 @@ async function discoverFedex(cookies: string, accessToken: string | undefined, s
   })), 'fedex', supabaseUrl, supabaseHeaders, startTime, total)
 }
 
-async function discoverDhl(cookies: string, xsrfToken: string, supabaseUrl: string, supabaseHeaders: Record<string, string>, startTime: number) {
+async function discoverDhl(cookies: string, xsrfToken: string, supabaseUrl: string, supabaseHeaders: Record<string, string>, startTime: number): Promise<DiscoverResult> {
   const dhlRes = await fetch('https://mydhl.express.dhl/api/mms/search', {
     method: 'POST',
     headers: {
@@ -119,6 +119,21 @@ async function discoverDhl(cookies: string, xsrfToken: string, supabaseUrl: stri
   })), 'dhl', supabaseUrl, supabaseHeaders, startTime, total)
 }
 
+interface DiscoverResult {
+  status: number
+  duration_ms: number
+  imported?: number
+  [key: string]: unknown
+}
+
+function supabaseHeaders(): Record<string, string> {
+  return {
+    apikey: SUPABASE_SERVICE_KEY!,
+    Authorization: `Bearer ${SUPABASE_SERVICE_KEY!}`,
+    'Content-Type': 'application/json',
+  }
+}
+
 async function importShipments(
   items: Array<{ trackingNumber: string; statusDescription: string | null; destination: string | null }>,
   carrierCode: string,
@@ -126,7 +141,7 @@ async function importShipments(
   supabaseHeaders: Record<string, string>,
   startTime: number,
   totalFromApi: number,
-) {
+): Promise<DiscoverResult> {
   const [carriersRes, existingRes] = await Promise.all([
     fetch(`${supabaseUrl}/rest/v1/carriers?select=id&code=eq.${carrierCode}`, { headers: supabaseHeaders }),
     fetch(`${supabaseUrl}/rest/v1/shipments?select=tracking_number`, { headers: supabaseHeaders }),
@@ -206,8 +221,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       startTime,
     )
     return res.status(result.status).json({
-      message: result.imported > 0
-        ? `Importate ${result.imported} nuove spedizioni da FedEx`
+      message: (result.imported ?? 0) > 0
+        ? `Importate ${result.imported ?? 0} nuove spedizioni da FedEx`
         : 'Nessuna nuova spedizione — FedEx e Supabase sincronizzati',
       ...result,
     })
@@ -219,12 +234,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { carrier = 'fedex', cookies, accessToken, xsrfToken } = req.body || {}
 
-  const supabaseHeaders = () => ({
-    apikey: SUPABASE_SERVICE_KEY!,
-    Authorization: `Bearer ${SUPABASE_SERVICE_KEY!}`,
-    'Content-Type': 'application/json',
-  })
-
   try {
     if (carrier === 'dhl') {
       const dhlCookies = cookies
@@ -233,8 +242,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       const result = await discoverDhl(dhlCookies, xsrfToken, SUPABASE_URL, supabaseHeaders(), startTime)
       return res.status(result.status).json({
-        message: result.imported > 0
-          ? `Importate ${result.imported} nuove spedizioni DHL`
+        message: (result.imported ?? 0) > 0
+          ? `Importate ${result.imported ?? 0} nuove spedizioni DHL`
           : 'Nessuna nuova spedizione DHL',
         ...result,
       })
@@ -246,8 +255,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     const result = await discoverFedex(fedexCookies, accessToken, SUPABASE_URL, supabaseHeaders(), startTime)
     return res.status(result.status).json({
-      message: result.imported > 0
-        ? `Importate ${result.imported} nuove spedizioni da FedEx`
+      message: (result.imported ?? 0) > 0
+        ? `Importate ${result.imported ?? 0} nuove spedizioni da FedEx`
         : 'Nessuna nuova spedizione — FedEx e Supabase sincronizzati',
       ...result,
     })
