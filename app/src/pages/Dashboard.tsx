@@ -6,8 +6,8 @@ import type { DashboardStats, Shipment } from '../types/tracking'
 import StatusPieChart from '../components/charts/StatusPieChart'
 import CarrierBarChart from '../components/charts/CarrierBarChart'
 
-function StatCard({ label, value, color, icon }: { label: string; value: number; color: string; icon: string }) {
-  return (
+function StatCard({ label, value, color, icon, to }: { label: string; value: number; color: string; icon: string; to?: string }) {
+  const content = (
     <div className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-slate-500">{label}</p>
@@ -16,6 +16,14 @@ function StatCard({ label, value, color, icon }: { label: string; value: number;
       <p className={`text-3xl font-bold mt-2 ${color}`}>{value}</p>
     </div>
   )
+  if (to) {
+    return (
+      <Link to={to} className="block cursor-pointer">
+        {content}
+      </Link>
+    )
+  }
+  return content
 }
 
 export default function Dashboard() {
@@ -209,9 +217,9 @@ export default function Dashboard() {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label="Totale spedizioni" value={stats?.total_shipments ?? 0} color="text-slate-800" icon="📦" />
-        <StatCard label="In transito" value={stats?.in_transit ?? 0} color="text-amber-600" icon="🚚" />
-        <StatCard label="Consegnate" value={stats?.delivered ?? 0} color="text-emerald-600" icon="✅" />
-        <StatCard label="Eccezioni" value={stats?.exceptions ?? 0} color="text-red-600" icon="⚠️" />
+        <StatCard label="In transito" value={stats?.in_transit ?? 0} color="text-amber-600" icon="🚚" to="/shipments?status=in_transit" />
+        <StatCard label="Consegnate" value={stats?.delivered ?? 0} color="text-emerald-600" icon="✅" to="/shipments?status=delivered" />
+        <StatCard label="Eccezioni" value={stats?.exceptions ?? 0} color="text-red-600" icon="⚠️" to="/shipments?status=exception" />
       </div>
 
       {/* Charts Row */}

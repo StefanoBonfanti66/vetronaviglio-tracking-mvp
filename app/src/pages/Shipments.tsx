@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { getShipments, getCarriers, createShipmentsBulk } from '../lib/shipments'
 import { parseCSV, validateCSV, shipmentsToCSV, downloadCSV, generateCSVTemplate, detectCarrierFromHeaders } from '../lib/csv'
 import { STATUS_LABELS, STATUS_COLORS } from '../types/tracking'
@@ -102,8 +102,12 @@ export default function Shipments() {
   const [count, setCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchParams] = useSearchParams()
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<ShipmentStatus | ''>('')
+  const [statusFilter, setStatusFilter] = useState<ShipmentStatus | ''>(() => {
+    const s = searchParams.get('status')
+    return s && s in STATUS_LABELS ? (s as ShipmentStatus) : ''
+  })
   const [carrierFilter, setCarrierFilter] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
@@ -124,6 +128,12 @@ export default function Shipments() {
   useEffect(() => {
     getCarriers().then(setCarriers).catch(() => {})
   }, [])
+
+  useEffect(() => {
+    const s = searchParams.get('status')
+    const next = s && s in STATUS_LABELS ? (s as ShipmentStatus) : ''
+    setStatusFilter((prev) => (prev !== next ? next : prev))
+  }, [searchParams])
 
   useEffect(() => {
     setLoading(true)
