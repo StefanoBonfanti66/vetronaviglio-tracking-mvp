@@ -3,10 +3,6 @@
     {
       "path": "/api/cron/refresh-tracking",
       "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/discover",
-      "schedule": "*/10 * * * *"
     }
   ],
   "functions": {

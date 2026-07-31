@@ -7,3 +7,4 @@ app/dist/
 .playwright-mcp/
 supabase/.temp/
 .vercel
+.env*
