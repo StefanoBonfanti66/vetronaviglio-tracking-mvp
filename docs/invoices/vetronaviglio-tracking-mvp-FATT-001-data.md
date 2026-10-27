@@ -1,5 +1,7 @@
 # FATT-001 — Dati Fiscali
 
+> **Documento dimostrativo.** Questo file è un esempio e non prova l'effettiva emissione di una fattura. Importi, dati e riferimenti descrivono una simulazione e non attestano operazioni fiscali reali. Stefano conferma che non sono stati ricevuti incassi reali.
+
 ## Documento
 
 | Campo | Valore |

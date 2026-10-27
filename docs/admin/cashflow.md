@@ -3,6 +3,8 @@
 > Ultimo aggiornamento: 2026-07-21
 > Preventivo: 2026-001 — €10.200 IVA esclusa
 > Regime: Forfettario (IVA fuori campo)
+>
+> **Documento dimostrativo.** Importi, movimenti, stati e scadenze descrivono una simulazione e non attestano operazioni reali. Stefano conferma che non sono stati ricevuti incassi reali. Gli incassi reali sono pari a zero.
 
 ---
 
@@ -12,8 +14,9 @@
 |---|---|
 | Preventivo totale (lordo) | €10.200 |
 | Totale entrate previste | €10.200 |
-| Totale entrate incassate | €2.040 |
-| **Saldo atteso netto** | **€10.200** |
+| Totale entrate incassate (simulate) | €2.040 |
+| Incassi reali (confermati da Stefano) | €0 |
+| **Saldo atteso netto (simulato)** | **€10.200** |
 
 ---
 
@@ -21,7 +24,7 @@
 
 | # | Fattura | Descrizione | Importo netto (€) | Data emissione prevista | Scadenza pagamento | Stato |
 |---|---|---|---|---|---|---|
-| 1 | FATT-001 | Acconto 20% — avvio lavori | 2.040 | 2026-07-21 | 2026-08-20 | 💰 Incassata 21/07/2026 |
+| 1 | FATT-001 | Acconto 20% — avvio lavori | 2.040 | 2026-07-21 | 2026-08-20 | Simulato (stato e data simulati — nessun incasso reale) |
 | 2 | FATT-002 | Post-M2 — Integrazione FedEx API | 2.040 | 2026-08-11 | 2026-09-10 | Da emettere |
 | 3 | FATT-003 | Post-M3 — Dashboard frontend | 3.060 | 2026-08-25 | 2026-09-24 | Da emettere |
 | 4 | FATT-004 | Go-live M5 — Testing e consegna | 3.060 | 2026-09-08 | 2026-10-08 | Da emettere |
@@ -33,8 +36,9 @@
 
 | Data | Fattura | Importo netto (€) | Modalità |
 |------|---------|-------------------|----------|
-| 21/07/2026 | FATT-001 | 2.040 | Bonifico — acconto 20% |
-| | **Totale incassato** | **2.040** | |
+| 21/07/2026 | FATT-001 | 2.040 | Bonifico — acconto 20% (simulato — nessun incasso reale) |
+| | **Totale incassato (simulato)** | **2.040** | |
+| | **Incassi reali (confermati da Stefano)** | **0** | |
 
 ---
 

@@ -2,6 +2,8 @@
 
 > Ultimo aggiornamento: 2026-07-21
 > Stato: Nessun sollecito — progetto appena avviato
+>
+> **Documento dimostrativo.** Importi, movimenti, stati e scadenze descrivono una simulazione e non attestano operazioni reali. Stefano conferma che non sono stati ricevuti incassi reali. Le affermazioni contenute in questo documento fanno parte della simulazione e non costituiscono fatti verificati.
 
 ---
 
