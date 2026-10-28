@@ -1,6 +1,6 @@
 # FATT-001 — Dati Fiscali
 
-> **Documento dimostrativo.** Questo file è un esempio e non prova l'effettiva emissione di una fattura. Importi, dati e riferimenti descrivono una simulazione e non attestano operazioni fiscali reali. Stefano conferma che non sono stati ricevuti incassi reali.
+> **BOZZA DEMO — MAI EMESSA.** Questo file è un esempio compilativo legato al preventivo 2026-001, non un documento fiscale. Il progetto non ha generato ricavi: nessuna fattura è stata emessa, nessun importo è stato incassato. Non usare questi dati per dichiarazioni o registri fiscali.
 
 ## Documento
 

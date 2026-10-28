@@ -14,6 +14,8 @@
 
 ## Current Focus — 2026-07-31 (Sessione 7)
 
+> **2026-10-28 — Riclassificato DEMO TECNICA.** Il progetto è stato un test interno e **non ha generato ricavi**: nessuna fattura emessa, nessun incasso. Documenti admin (ledger, cashflow, solleciti, registro fatture) azzerati e marcati "annullato/demo"; `docs/project/project-status.json` aggiunto con `is_test: true`, `state: archived`. Le sezioni sotto sono storiche e vanno lette in questa chiave.
+
 ### Completato (Sessione 7 - 2026-07-31)
 - **Card stato Dashboard cliccabili:** In transito/Consegnate/Eccezioni → `/shipments?status=<status>` via `useSearchParams` (commit `c564b7b`)
 - **Sync FedEx funzionante end-to-end:** Persistenza cookie sessione in `carrier_credentials` con fallback server-side (37a297b); fix crash 500 in produzione da import ESM senza `.js` → ERR_MODULE_NOT_FOUND (91b952a); fix script: navigazione post-login a `fedextracking/` per catturare il token valido + cattura request diagnostica (ef11e9e); `.gitignore` per `scripts/.fedex-session.json` e `scripts/.fedex-requests.json`. Verificato: bottone dashboard → 200, 208 spedizioni FedEx in Supabase

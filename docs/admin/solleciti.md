@@ -1,15 +1,15 @@
 # Solleciti — Vetronaviglio Tracking MVP
 
-> Ultimo aggiornamento: 2026-07-21
-> Stato: Nessun sollecito — progetto appena avviato
->
-> **Documento dimostrativo.** Importi, movimenti, stati e scadenze descrivono una simulazione e non attestano operazioni reali. Stefano conferma che non sono stati ricevuti incassi reali. Le affermazioni contenute in questo documento fanno parte della simulazione e non costituiscono fatti verificati.
+> Ultimo aggiornamento: 2026-10-28
+> Stato: Nessun sollecito — demo tecnica, nessuna fattura emessa
+
+> **DEMO TECNICA — NESSUN CREDITO.** Il progetto è stato un test interno e non ha generato ricavi: non esistono fatture, scadenze o insoluti da sollecitare.
 
 ---
 
 ## Situazione attuale
 
-Nessuna fattura è ancora stata emessa, quindi nessun sollecito è necessario.
+Nessuna fattura è stata emessa, quindi non esiste alcun credito e nessun sollecito è necessario.
 
 ---
 
@@ -37,6 +37,5 @@ Le azioni di follow-up seguiranno lo standard:
 
 ## Note
 
-- Nessun sollecito attivo: il progetto è stato appena avviato (2026-07-21)
-- Primo sollecito eventuale: dopo la scadenza della FATT-001 (2026-08-20)
-- Segnalare al CEO ogni ritardo superiore a 14 giorni
+- Nessun sollecito attivo: il progetto è una demo chiusa (archiviata il 2026-10-28)
+- Se il progetto viene riaperto commercialmente, generare un nuovo ledger e un nuovo cashflow prima di emettere fatture

@@ -1,11 +1,11 @@
 # Registro Fatture — Vetronaviglio Tracking MVP
 
-> Ultimo aggiornamento: 2026-07-21
-> Cliente: Vetronaviglio s.r.l. — P.IVA: [da verificare]
-> Preventivo: 2026-001 — €10.200 IVA esclusa
+> Ultimo aggiornamento: 2026-10-28
+> Cliente: Vetronaviglio s.r.l. (demo tecnica)
+> Preventivo: 2026-001 — €10.200 IVA esclusa (mai fatturato)
 > Regime: Forfettario (IVA fuori campo)
->
-> **Documento dimostrativo.** Importi, movimenti, stati e scadenze descrivono una simulazione e non attestano operazioni reali. Stefano conferma che non sono stati ricevuti incassi reali. Le fatture elencate sono esempi e non costituiscono prova di emissione fiscale reale.
+
+> **DEMO TECNICA — NESSUNA FATTURA EMESSA.** Il progetto è stato un test interno e non ha generato ricavi. Le righe sotto restano come traccia del preventivo: nessun documento fiscale è stato emesso.
 
 ---
 
@@ -13,28 +13,26 @@
 
 | # | Numero Fattura | Tipo | Milestone | Importo netto (€) | Data emissione | Scadenza pagamento | Stato | Note |
 |---|---|---|---|---|---|---|---|---|
-| 1 | FATT-001 | Acconto | Avvio lavori | 2.040 | 2026-07-21 | 2026-08-20 | Simulato | 20% del totale — stato simulato, nessun incasso reale |
-| 2 | FATT-002 | Milestone | Post-M2 FedEx API | 2.040 | 2026-08-11 | 2026-09-10 | Da emettere | Emettere dopo completamento M2 |
-| 3 | FATT-003 | Milestone | Post-M3 Dashboard | 3.060 | 2026-08-25 | 2026-09-24 | Da emettere | Emettere dopo completamento M3 |
-| 4 | FATT-004 | Saldo | Go-live M5 | 3.060 | 2026-09-08 | 2026-10-08 | Da emettere | Saldo a consegna — emettere a go-live |
-| | | | **Totale** | **10.200** | | | | |
+| 1 | FATT-001 | Acconto | Avvio lavori | 0 | — | — | ⛔ Annullata | Mai emessa — demo |
+| 2 | FATT-002 | Milestone | Post-M2 FedEx API | 0 | — | — | ⛔ Annullata | Mai emessa — demo |
+| 3 | FATT-003 | Milestone | Post-M3 Dashboard | 0 | — | — | ⛔ Annullata | Mai emessa — demo |
+| 4 | FATT-004 | Saldo | Go-live M5 | 0 | — | — | ⛔ Annullata | Mai emessa — demo |
+| | | | **Totale** | **0** | | | | |
 
 ---
 
-## Riepilogo simulato
+## Riepilogo
 
 | Stato | Numero | Importo totale |
 |---|---|---|
-| Simulato | 1 | €2.040 |
-| Da emettere (simulato) | 3 | €8.160 |
-| **Totale (simulato)** | **4** | **€10.200** |
+| Emesse | 0 | €0 |
+| Annullate | 4 | €0 |
+| **Totale** | **0** | **€0** |
 
 ---
 
 ## Note operative
 
-- Termini pagamento: 30 giorni dalla data fattura
-- Prima fattura (acconto) da emettere all'accettazione dell'incarico
-- Ogni fattura milestone viene emessa al completamento della milestone corrispondente
-- Garanzia post go-live: 30 giorni (coperta dal saldo M5)
+- Nessun documento fiscale emesso per questo progetto
+- Eventuale riapertura commerciale richiede un nuovo preventivo approvato dal CEO, poi un nuovo registro
 - Fatturazione elettronica via SDI software (non gestita da questo registro)

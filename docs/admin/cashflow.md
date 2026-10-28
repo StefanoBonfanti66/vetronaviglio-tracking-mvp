@@ -1,10 +1,10 @@
 # Cashflow — Vetronaviglio Tracking MVP
 
-> Ultimo aggiornamento: 2026-07-21
-> Preventivo: 2026-001 — €10.200 IVA esclusa
+> Ultimo aggiornamento: 2026-10-28
+> Preventivo: 2026-001 — €10.200 IVA esclusa (mai fatturato)
 > Regime: Forfettario (IVA fuori campo)
->
-> **Documento dimostrativo.** Importi, movimenti, stati e scadenze descrivono una simulazione e non attestano operazioni reali. Stefano conferma che non sono stati ricevuti incassi reali. Gli incassi reali sono pari a zero.
+
+> **DEMO TECNICA — NESSUN RICAVO.** Il progetto è stato un test interno: nessuna fattura emessa, nessun incasso, nessun credito verso il cliente. Le righe sotto restano come traccia del preventivo, non come cashflow atteso.
 
 ---
 
@@ -12,11 +12,10 @@
 
 | Voce | Importo |
 |---|---|
-| Preventivo totale (lordo) | €10.200 |
-| Totale entrate previste | €10.200 |
-| Totale entrate incassate (simulate) | €2.040 |
-| Incassi reali (confermati da Stefano) | €0 |
-| **Saldo atteso netto (simulato)** | **€10.200** |
+| Preventivo totale (solo proposta, mai fatturato) | €10.200 |
+| Totale entrate previste | €0 |
+| Totale entrate incassate | €0 |
+| **Saldo atteso netto** | **€0** |
 
 ---
 
@@ -24,11 +23,11 @@
 
 | # | Fattura | Descrizione | Importo netto (€) | Data emissione prevista | Scadenza pagamento | Stato |
 |---|---|---|---|---|---|---|
-| 1 | FATT-001 | Acconto 20% — avvio lavori | 2.040 | 2026-07-21 | 2026-08-20 | Simulato (stato e data simulati — nessun incasso reale) |
-| 2 | FATT-002 | Post-M2 — Integrazione FedEx API | 2.040 | 2026-08-11 | 2026-09-10 | Da emettere |
-| 3 | FATT-003 | Post-M3 — Dashboard frontend | 3.060 | 2026-08-25 | 2026-09-24 | Da emettere |
-| 4 | FATT-004 | Go-live M5 — Testing e consegna | 3.060 | 2026-09-08 | 2026-10-08 | Da emettere |
-| | | **Totale** | **10.200** | | | |
+| 1 | FATT-001 | Acconto 20% — avvio lavori | 0 | — | — | ⛔ Annullata (demo) |
+| 2 | FATT-002 | Post-M2 — Integrazione FedEx API | 0 | — | — | ⛔ Annullata (demo) |
+| 3 | FATT-003 | Post-M3 — Dashboard frontend | 0 | — | — | ⛔ Annullata (demo) |
+| 4 | FATT-004 | Go-live M5 — Testing e consegna | 0 | — | — | ⛔ Annullata (demo) |
+| | | **Totale** | **0** | | | |
 
 ---
 
@@ -36,15 +35,13 @@
 
 | Data | Fattura | Importo netto (€) | Modalità |
 |------|---------|-------------------|----------|
-| 21/07/2026 | FATT-001 | 2.040 | Bonifico — acconto 20% (simulato — nessun incasso reale) |
-| | **Totale incassato (simulato)** | **2.040** | |
-| | **Incassi reali (confermati da Stefano)** | **0** | |
+| — | Nessuno | 0 | — |
+| | **Totale incassato** | **0** | |
 
 ---
 
 ## Note
 
-- Date emissioni stimate sulla base della timeline del preventivo (~6-7 settimane totali)
-- Termini pagamento: 30 giorni data fattura
-- Importi sempre netti, IVA fuori campo (regime forfettario)
-- Prima fattura (acconto) pronta per emissione immediata all'accettazione incarico
+- Il preventivo 2026-001 non è mai stato convertito in incarico fatturabile
+- Nessuna scadenza di pagamento attiva, nessun sollecito da pianificare
+- Eventuale riapertura commerciale richiede un nuovo preventivo approvato dal CEO

@@ -221,3 +221,10 @@
 - **Script discover-dhl.mjs riscritto (commit 50f7bd7):** niente più forwarding cookie. Ora: login (auto o `--manual`), estrazione AWB via `page.evaluate` same-origin fetch, POST `{carrier:'dhl', trackingNumbers}` in JSON all'endpoint. File sessione `scripts/.dhl-session.json` contiene solo tracking numbers (non credenziali). `--no-browser` ri-uploada l'ultima lista salvata.
 - **Da valutare:** bottone "Sync DHL" in dashboard (oggi solo FedEx ha il Sync button); rimozione credenziali DHL hardcoded in discover-dhl.mjs (`DHL_USER`/`DHL_PASS` fallback `m.colombo@vetronaviglio.it`/`Vetronaviglio1&`).
 - Commit: `b969705` server branch, `50f7bd7` script rewrite.
+
+### Sessione 8 — Riclassificazione DEMO TECNICA, nessun ricavo (2026-10-28)
+- **Chiarimento CEO:** il progetto è stato un test interno e **non ha generato soldi**. La dashboard ZBN lo aveva già marcato `is_test: true` (commit `3f5af1a`, 27/10) escludendolo dai KPI, ma i documenti del repo dicevano il contrario (`go-live confermato`, FATT-001 "incassata" 2.040 €, totale 10.200 €).
+- **Corretti:** `docs/overview.md` (frontmatter `commercial_status: inactive`, `operational_status: demo`, `administrative_status: closed`, `is_test: true`; sezione Stato attuale riscritta con banner demo), `docs/project/overview.md` (stato progetto + prossimi passi), `docs/admin/ledger.md` (movimenti annullati, totale 0), `docs/admin/cashflow.md` (entrate reali 0, incassi 0), `docs/admin/solleciti.md` (nessun credito), `docs/invoices/index.md` (0 fatture emesse), `docs/invoices/...FATT-001-data.md` (banner "bozza demo, mai emessa").
+- **Aggiunto `docs/project/project-status.json`** (`schema_version: 1`, `state: archived`, `phase: "Demo conservata"`, `is_test: true`) — validato con `project-status-validate.js` della dashboard: `{ valid: true }`. Così la discovery locale/CI non può più riportare stato o ricavi inventati.
+- **Documenti lasciati invariati** (sono storici, non contabili): `docs/proposals/preventivo-*`, `docs/project/*-plan.md`, `docs/project/*-kickoff-*.md`.
+- Nessuna modifica a codice applicativo, deploy o Supabase.

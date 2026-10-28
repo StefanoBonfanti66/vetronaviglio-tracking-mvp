@@ -2,19 +2,19 @@
 
 Vista PM sintetica. Per dettagli completi, vedere [../overview.md](../overview.md).
 
+> **DEMO TECNICA (2026-10-28).** Test interno, nessun ricavo, nessuna fattura emessa. Archiviata.
+
 ## Stato Progetto
 
 | Campo | Valore |
 |---|---|
-| Stato commerciale | Attivo (preventivo finalizzato, FATT-001 incassata) |
-| Stato operativo | Production (go-live, `app-blond-omega-14.vercel.app`) |
-| Stato amministrativo | Attivo |
-| Cliente | Vetronaviglio s.r.l. |
+| Stato commerciale | Chiuso — demo tecnica, nessun ricavo |
+| Stato operativo | Demo conservata (`app-blond-omega-14.vercel.app`) |
+| Stato amministrativo | Chiuso — nessuna fattura emessa |
+| Cliente | Vetronaviglio s.r.l. (demo) |
 | Owner | Zetabytenexus |
 
 ## Prossimi passi
 
-1. Salvare credenziali corrieri reali nella Settings page
-2. Emettere FATT-002 (post-M2, €2.040, scadenza 2026-09-10)
-3. Auth/login page per proteggere i dati
-4. Raccogliere feedback cliente su produzione
+1. Nessuno pianificato: demo archiviata
+2. Un'eventuale riapertura commerciale richiede nuovo preventivo approvato dal CEO
